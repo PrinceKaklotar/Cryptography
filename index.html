@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hybrid PQC – Post-Quantum File Transfer | ECDH + LWE/Kyber</title>
+  <meta name="description" content="An interactive demo that shows hybrid post-quantum encryption combining Elliptic Curve Diffie-Hellman (ECDH) with lattice-based LWE/Kyber cryptography for quantum-resistant file transfer." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+
+<!-- ─── Navigation ─── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">🔐</div>
+      <span class="nav-logo-text">HybridPQC</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="math-details.html">Math Details</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="demo.html" class="nav-cta">Try Demo →</a></li>
+    </ul>
+    <button class="nav-hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="nav-mobile">
+  <a href="index.html">Home</a>
+  <a href="how-it-works.html">How It Works</a>
+  <a href="math-details.html">Math Details</a>
+  <a href="security.html">Security</a>
+  <a href="about.html">About</a>
+  <a href="demo.html">Try Demo →</a>
+</div>
+
+<!-- ─── Hero ─── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-bg"></div>
+  <canvas id="hero-matrix" class="matrix-rain-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;"></canvas>
+
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        NIST Post-Quantum Cryptography 2024
+      </div>
+
+      <h1>
+        <span class="gradient-text">Hybrid Post-Quantum</span><br/>
+        File Transfer Tool
+      </h1>
+
+      <p class="lead">
+        Combining <strong>Elliptic Curve Diffie-Hellman (ECDH)</strong> with
+        <strong>lattice-based LWE/Kyber</strong> encryption to create a
+        quantum-resistant secure file transfer. If one algorithm breaks, the other keeps your data safe.
+      </p>
+
+      <div class="hero-actions">
+        <a href="demo.html" class="btn btn-primary btn-lg btn-glow" id="hero-cta">
+          🚀 Try the Interactive Demo
+        </a>
+        <a href="how-it-works.html" class="btn btn-secondary btn-lg">
+          📖 How It Works
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <span>Scroll to explore</span>
+    <span style="font-size:1.2rem">↓</span>
+  </div>
+</section>
+
+<!-- ─── Stats Bar ─── -->
+<section style="padding: var(--sp-8) 0; background: var(--bg-secondary); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="container">
+    <div class="grid-4 reveal-group">
+      <div class="stat-card reveal">
+        <div class="stat-number gradient-text" data-count="256" data-suffix="-bit">256-bit</div>
+        <div class="stat-label">Hybrid Key Strength</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-1">
+        <div class="stat-number" style="color:var(--cyan)">AES-GCM</div>
+        <div class="stat-label">Real Encryption Standard</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-2">
+        <div class="stat-number gradient-text-reverse">ECDH + LWE</div>
+        <div class="stat-label">Dual Key Exchange</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-3">
+        <div class="stat-number" style="color:var(--green)">NIST</div>
+        <div class="stat-label">Standardized Algorithm Basis</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Feature Cards ─── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-label">🛡️ Core Features</div>
+      <h2>Why <span class="gradient-text">Hybrid Encryption?</span></h2>
+      <p>Classical computers can't break LWE. Quantum computers can't efficiently break LWE.
+         If one algorithm falls, the other stands. That's the power of hybrid cryptography.</p>
+    </div>
+
+    <div class="grid-auto reveal-group">
+
+      <div class="card card-cyan reveal hover-lift">
+        <div class="card-icon card-icon-cyan">🌐</div>
+        <h4>Classical Security (ECDH)</h4>
+        <p>Elliptic Curve Diffie-Hellman over P-256. Provides 128-bit classical security. Used in TLS, Signal, WhatsApp today.</p>
+        <div class="mt-4">
+          <span class="badge badge-cyan">128-bit classical</span>
+          <span class="badge badge-cyan" style="margin-left:6px">P-256 curve</span>
+        </div>
+      </div>
+
+      <div class="card card-purple reveal reveal-delay-1 hover-lift">
+        <div class="card-icon card-icon-purple">🔮</div>
+        <h4>Post-Quantum Security (LWE)</h4>
+        <p>Learning With Errors — a lattice-based problem believed to be hard even for quantum computers running Shor's algorithm.</p>
+        <div class="mt-4">
+          <span class="badge badge-purple">Quantum-resistant</span>
+          <span class="badge badge-purple" style="margin-left:6px">NIST finalist</span>
+        </div>
+      </div>
+
+      <div class="card card-green reveal reveal-delay-2 hover-lift">
+        <div class="card-icon card-icon-green">⚡</div>
+        <h4>Hybrid Approach</h4>
+        <p>Combine both shared secrets via SHA-256: <code>Key = H(ECDH || LWE)</code>. Safe even if <em>either</em> algorithm is broken.</p>
+        <div class="mt-4">
+          <span class="badge badge-green">Defense in depth</span>
+        </div>
+      </div>
+
+      <div class="card reveal reveal-delay-3 hover-lift">
+        <div class="card-icon card-icon-amber">📁</div>
+        <h4>Real File Transfer</h4>
+        <p>Encrypt any file or message with AES-256-GCM using the hybrid key. Download the .hpqc file. Decrypt on the other side.</p>
+        <div class="mt-4">
+          <span class="badge badge-amber">AES-256-GCM</span>
+          <span class="badge badge-amber" style="margin-left:6px">Web Crypto API</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ─── How It Works Preview ─── -->
+<section class="section" style="background: var(--bg-secondary);">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">⚙️ The Process</div>
+      <h2>From Key Exchange to <span class="gradient-text">Encrypted File</span></h2>
+    </div>
+
+    <div class="reveal">
+      <div class="flow-diagram" style="flex-wrap:wrap; gap: var(--sp-3) var(--sp-2); margin-bottom: var(--sp-8);">
+        <div class="flow-box flow-box-cyan">Choose File / Message</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box flow-box-purple">ECDH Key Exchange</div>
+        <div class="flow-arrow">+</div>
+        <div class="flow-box flow-box-purple">LWE Key Exchange</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box flow-box-cyan">SHA-256(ECDH ‖ LWE)</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box flow-box-green">AES-256-GCM Encrypt</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-color:rgba(245,158,11,0.4);color:var(--amber)">Download .hpqc</div>
+      </div>
+    </div>
+
+    <!-- Three step cards -->
+    <div class="grid-3 reveal-group">
+      <div class="card reveal">
+        <div style="font-size:2.5rem; margin-bottom:var(--sp-3);">🔑</div>
+        <h4>1. Dual Key Exchange</h4>
+        <p>Alice and Bob run both ECDH (classical) and LWE (post-quantum) key agreements simultaneously. Each produces an independent shared secret.</p>
+        <a href="how-it-works.html#ecdh" class="btn btn-cyan btn-sm mt-4">Learn ECDH →</a>
+      </div>
+      <div class="card reveal reveal-delay-1">
+        <div style="font-size:2.5rem; margin-bottom:var(--sp-3);">🔀</div>
+        <h4>2. Hybrid Combination</h4>
+        <p>The two secrets are hashed together: <code>Key = SHA-256(ECDH || LWE)</code>. This 256-bit key is cryptographically tied to both algorithms.</p>
+        <a href="how-it-works.html#hybrid" class="btn btn-purple btn-sm mt-4">Learn Hybrid →</a>
+      </div>
+      <div class="card reveal reveal-delay-2">
+        <div style="font-size:2.5rem; margin-bottom:var(--sp-3);">🔒</div>
+        <h4>3. AES-256-GCM Encryption</h4>
+        <p>The hybrid key encrypts your file using AES-256-GCM — the same algorithm used by banks and governments. Authenticated, tamper-proof.</p>
+        <a href="demo.html" class="btn btn-success btn-sm mt-4">Try the Demo →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── LWE Explainer ─── -->
+<section class="section">
+  <div class="container">
+    <div class="two-col">
+      <div>
+        <div class="section-label reveal">🧮 The Hard Problem</div>
+        <h2 class="reveal" style="margin-bottom:var(--sp-5);">What Makes LWE <span class="gradient-text">Quantum-Hard?</span></h2>
+        <p class="reveal" style="margin-bottom:var(--sp-5);">
+          Imagine you receive a table of random numbers (matrix <strong>A</strong>) and a vector <strong>b</strong>.
+          You're told that <strong>b ≈ A·s</strong> for some secret <strong>s</strong>, but with a tiny random error added.
+          Finding <strong>s</strong> — even knowing <strong>A</strong> and <strong>b</strong> — is believed to be computationally hard
+          for both classical <em>and</em> quantum computers.
+        </p>
+
+        <div class="info-box info-box-cyan reveal">
+          <div class="info-box-icon">💡</div>
+          <div class="info-box-content">
+            <h5>The Analogy</h5>
+            <p>It's like a noisy linear equation system. You have 4 equations, 4 unknowns — but each equation has a small error. Solving it exactly is easy, but the error randomizes every attempt. That randomness is what makes LWE hard.</p>
+          </div>
+        </div>
+
+        <div class="step-list reveal reveal-delay-1" style="margin-top:var(--sp-6);">
+          <div class="step-item">
+            <div class="step-num step-num-cyan">1</div>
+            <div class="step-content">
+              <h5>Generate random A, small secret s</h5>
+              <p>A is a public n×n matrix. s is a small secret vector.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num step-num-purple">2</div>
+            <div class="step-content">
+              <h5>Compute b = A·s + e</h5>
+              <p>Add a tiny error e from a narrow distribution χ. This is the "Learning With Errors" sample.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num step-num-green">3</div>
+            <div class="step-content">
+              <h5>Publish (A, b) as public key</h5>
+              <p>Finding s from A and b is the LWE hard problem. Even quantum computers can't do it efficiently.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col-sticky reveal reveal-delay-1">
+        <div class="math-box">
+          <div class="math-label">LWE Sample (Demo: n=4, q=97)</div>
+          <div style="font-family:var(--font-mono);font-size:0.85rem;line-height:2;color:var(--text-code);">
+            <div><span style="color:var(--cyan)">A</span> = random matrix ∈ ℤ<sub>97</sub><sup>4×4</sup></div>
+            <div><span style="color:var(--purple-light)">s</span> = secret vector ∈ {0,1,2}<sup>4</sup></div>
+            <div><span style="color:var(--red)">e</span> = error vector from χ, |eᵢ| ≤ 1</div>
+            <div style="margin-top:var(--sp-2);padding-top:var(--sp-2);border-top:1px solid var(--border)">
+              <span style="color:var(--green)">b</span> = <span style="color:var(--cyan)">A</span>·<span style="color:var(--purple-light)">s</span> + <span style="color:var(--red)">e</span> mod 97 &nbsp;← public
+            </div>
+            <div style="margin-top:var(--sp-3);color:var(--text-muted);font-size:0.78rem">
+              Hard problem: find s given (A, b)
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-wrap reveal reveal-delay-2" style="margin-top:var(--sp-4)">
+          <canvas id="lattice-canvas" style="width:100%;height:280px;"></canvas>
+          <div style="padding:var(--sp-3) var(--sp-4);border-top:1px solid var(--border);font-size:0.78rem;color:var(--text-muted)">
+            A 2D integer lattice. The SVP arrow shows the shortest non-zero vector — finding it is NP-hard in high dimensions.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Hybrid Security Explainer ─── -->
+<section class="section" style="background:var(--bg-secondary);">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">🛡️ Defense in Depth</div>
+      <h2>Why Hybrid is <span class="gradient-text">Future-Proof</span></h2>
+      <p>The hybrid approach ensures your data is safe today and tomorrow, regardless of which algorithm might eventually be weakened.</p>
+    </div>
+
+    <div class="grid-2 reveal-group" style="margin-bottom:var(--sp-8);">
+      <div class="card card-cyan reveal">
+        <h4>⚠️ Shor's Algorithm Breaks ECDH</h4>
+        <p style="margin-bottom:var(--sp-3);">A sufficiently powerful quantum computer running Shor's algorithm can solve the Elliptic Curve Discrete Logarithm Problem (ECDLP), breaking ECDH.</p>
+        <div class="info-box info-box-green" style="margin:0">
+          <div class="info-box-icon">✓</div>
+          <div class="info-box-content">
+            <p>LWE remains secure. The hybrid key is still protected.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card card-purple reveal reveal-delay-1">
+        <h4>⚠️ Future Lattice Attack on LWE</h4>
+        <p style="margin-bottom:var(--sp-3);">If a future mathematical breakthrough weakened LWE (e.g., better lattice reduction algorithms), quantum or classical, ECDH would still hold.</p>
+        <div class="info-box info-box-green" style="margin:0">
+          <div class="info-box-icon">✓</div>
+          <div class="info-box-content">
+            <p>ECDH remains secure. The hybrid key is still protected.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card reveal" style="max-width:700px;margin:0 auto;text-align:center;background:linear-gradient(135deg,rgba(6,182,212,0.05),rgba(139,92,246,0.05));border-color:rgba(6,182,212,0.2)">
+      <div style="font-size:2rem;margin-bottom:var(--sp-3);">🔐</div>
+      <h3 style="margin-bottom:var(--sp-3);">An attacker must break <em>both</em></h3>
+      <p>Since <code>hybridKey = SHA-256(ECDH_secret || LWE_secret)</code>, recovering the key requires breaking <strong>both</strong> ECDH and LWE simultaneously. The probability of this is negligible under current cryptanalytic knowledge.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="section">
+  <div class="container">
+    <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto;">
+      <h2 style="margin-bottom:var(--sp-4);">Ready to see it in <span class="gradient-text">action?</span></h2>
+      <p style="margin-bottom:var(--sp-8);">
+        The interactive demo lets you encrypt a real file using hybrid post-quantum cryptography — right in your browser, with no installation required.
+      </p>
+      <div class="flex-center gap-4" style="flex-wrap:wrap;">
+        <a href="demo.html" class="btn btn-primary btn-lg btn-glow" id="bottom-cta">🚀 Launch Demo</a>
+        <a href="how-it-works.html" class="btn btn-secondary btn-lg">Learn the Theory</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo" style="margin-bottom:var(--sp-3);display:inline-flex;">
+          <div class="nav-logo-icon">🔐</div>
+          <span class="nav-logo-text">HybridPQC</span>
+        </a>
+        <p>A hybrid post-quantum encryption demo combining ECDH and LWE/Kyber for quantum-resistant file transfer.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Pages</h5>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="math-details.html">Math Details</a></li>
+          <li><a href="demo.html">Demo</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Learn</h5>
+        <ul>
+          <li><a href="how-it-works.html#lwe">LWE Explained</a></li>
+          <li><a href="how-it-works.html#kyber">About Kyber</a></li>
+          <li><a href="security.html">Security Analysis</a></li>
+          <li><a href="math-details.html">Math Details</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>References</h5>
+        <ul>
+          <li><a href="about.html#references">NIST PQC</a></li>
+          <li><a href="about.html#references">Kyber Paper</a></li>
+          <li><a href="about.html">About Project</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 HybridPQC Project — Educational Demonstration</span>
+      <span style="color:var(--text-muted)">Built with Web Crypto API | No data leaves your browser</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/lwe.js"></script>
+<script src="js/lattice-canvas.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/nav.js"></script>
+<script>
+// Matrix rain on hero canvas
+(function() {
+  const canvas = document.getElementById('hero-matrix');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const cols = Math.floor(canvas.width / 14);
+  const drops = Array(cols).fill(0).map(() => Math.random() * -50);
+  const chars = '01アカタサナハマヤラワABCDEF0123456789';
+
+  function draw() {
+    ctx.fillStyle = 'rgba(7,9,15,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'rgba(6,182,212,0.35)';
+    ctx.font = '12px JetBrains Mono, monospace';
+    drops.forEach((y, i) => {
+      const c = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillText(c, i * 14, y * 14);
+      if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

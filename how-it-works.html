@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How It Works – Lattices, LWE, Kyber, ECDH & Hybrid | HybridPQC</title>
+  <meta name="description" content="Beginner-friendly explanation of lattice cryptography, LWE, Kyber, ECDH, and why hybrid post-quantum encryption protects your data." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <!-- KaTeX for math rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+</head>
+<body>
+
+<!-- ─── Navigation ─── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">🔐</div>
+      <span class="nav-logo-text">HybridPQC</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="how-it-works.html" class="active">How It Works</a></li>
+      <li><a href="math-details.html">Math Details</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="demo.html" class="nav-cta">Try Demo →</a></li>
+    </ul>
+    <button class="nav-hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-mobile">
+  <a href="index.html">Home</a><a href="how-it-works.html">How It Works</a>
+  <a href="math-details.html">Math Details</a><a href="security.html">Security</a>
+  <a href="about.html">About</a><a href="demo.html">Try Demo →</a>
+</div>
+
+<!-- ─── Page Hero ─── -->
+<div class="page-hero">
+  <div class="container">
+    <div class="section-label">📚 Educational Guide</div>
+    <h1>How <span class="gradient-text">Hybrid PQC</span> Works</h1>
+    <p>A beginner-friendly journey through lattices, LWE, Kyber, ECDH, and why we combine them — with interactive visualizations.</p>
+  </div>
+</div>
+
+<!-- ─── Main Content ─── -->
+<div class="section">
+  <div class="container">
+    <div class="sidebar-layout">
+
+      <!-- Sidebar nav -->
+      <nav class="sidebar-nav">
+        <div class="sidebar-nav-title">Contents</div>
+        <a href="#lattices">1. Lattices</a>
+        <a href="#svp">2. SVP (Hard Problem)</a>
+        <a href="#lwe">3. Learning With Errors</a>
+        <a href="#kyber">4. Kyber/Module-LWE</a>
+        <a href="#ecdh">5. ECDH (Classical)</a>
+        <a href="#hybrid">6. Hybrid Encryption</a>
+        <a href="#why-hybrid">7. Why Hybrid?</a>
+      </nav>
+
+      <!-- Main content -->
+      <div>
+
+        <!-- ─── Section 1: Lattices ─── -->
+        <div class="concept-section" id="lattices">
+          <div class="concept-number">SECTION 01</div>
+          <h3>What is a <span class="gradient-text">Lattice?</span></h3>
+          <p>
+            Imagine an infinite grid of dots spread out across space. In mathematics, a
+            <strong>lattice</strong> is a regular, repetitive arrangement of points in n-dimensional
+            space — like a crystal structure or a chessboard extended infinitely in all directions.
+          </p>
+          <p>
+            Formally, a lattice $\mathcal{L}$ is defined by a set of <em>basis vectors</em>
+            $\mathbf{b}_1, \mathbf{b}_2, \ldots, \mathbf{b}_n$. Every lattice point is an
+            integer combination of these basis vectors:
+          </p>
+
+          <div class="math-box">
+            <div class="math-label">Lattice Definition</div>
+            $$\mathcal{L}(\mathbf{B}) = \left\{ \sum_{i=1}^{n} a_i \mathbf{b}_i \;\middle|\; a_i \in \mathbb{Z} \right\}$$
+          </div>
+
+          <div class="analogy-box">
+            <div class="analogy-label">🧠 Analogy</div>
+            <p>Think of a city grid. Streets run at regular intervals — that's a lattice. Every intersection is a lattice point. The block sizes define the basis vectors.</p>
+          </div>
+
+          <div class="canvas-wrap" style="margin-top:var(--sp-5)">
+            <canvas id="lattice-canvas" style="width:100%;height:320px;"></canvas>
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-top:var(--sp-2);">
+            A 2D integer lattice with basis vectors <strong>b₁</strong> (cyan) and <strong>b₂</strong> (purple).
+            The amber arrow shows the shortest non-zero vector — the SVP solution.
+          </p>
+        </div>
+
+        <!-- ─── Section 2: SVP ─── -->
+        <div class="concept-section" id="svp">
+          <div class="concept-number">SECTION 02</div>
+          <h3>The <span class="gradient-text">Shortest Vector Problem</span></h3>
+          <p>
+            Given a lattice, find the shortest non-zero vector in it. Easy to understand,
+            surprisingly hard to solve — especially in high dimensions.
+          </p>
+
+          <div class="info-box info-box-amber">
+            <div class="info-box-icon">⚠️</div>
+            <div class="info-box-content">
+              <h5>Why is SVP Hard?</h5>
+              <p>In 2D, you can eyeball the shortest vector. But in 256 dimensions (like real Kyber uses), your intuition completely fails. The number of "candidates" grows exponentially. Even quantum computers can't solve SVP efficiently in high dimensions — this is the security foundation of lattice cryptography.</p>
+            </div>
+          </div>
+
+          <div class="grid-2" style="margin-top:var(--sp-6)">
+            <div class="card card-cyan">
+              <h4>🟢 Classical Attacker</h4>
+              <p>Best known algorithm (LLL + BKZ) runs in sub-exponential time. For Kyber-512 parameters, this requires ≈ 2<sup>128</sup> operations. Infeasible.</p>
+            </div>
+            <div class="card card-purple">
+              <h4>🔮 Quantum Attacker</h4>
+              <p>Grover's algorithm gives a generic quadratic speedup. But for lattice problems, quantum computers provide at most a minor advantage. Still infeasible for Kyber parameters.</p>
+            </div>
+          </div>
+
+          <div class="math-box" style="margin-top:var(--sp-5)">
+            <div class="math-label">SVP (Shortest Vector Problem)</div>
+            <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--text-code);margin:0">
+              Given: Lattice basis $\mathbf{B} \in \mathbb{Z}^{n \times n}$<br/>
+              Find: $\mathbf{v} \in \mathcal{L}(\mathbf{B}) \setminus \{0\}$ with $\|\mathbf{v}\|$ minimized<br/>
+              <br/>
+              Time complexity: $2^{O(n)}$ (best classical) — exponential in dimension $n$
+            </p>
+          </div>
+        </div>
+
+        <!-- ─── Section 3: LWE ─── -->
+        <div class="concept-section" id="lwe">
+          <div class="concept-number">SECTION 03</div>
+          <h3>Learning With Errors <span class="gradient-text">(LWE)</span></h3>
+          <p>
+            LWE is a <em>computational</em> problem based on lattice hardness. Proposed by
+            Oded Regev in 2005, it has become the cornerstone of most post-quantum
+            cryptographic schemes.
+          </p>
+
+          <div class="analogy-box">
+            <div class="analogy-label">🧠 Analogy</div>
+            <p>You're given many math equations: $3x + 7y \approx 52$, $5x + 3y \approx 41$... but each equation has a small typo (error). Solving equations with known values is easy. Solving them with hidden errors, where you don't know which bits flipped, is much harder.</p>
+          </div>
+
+          <div class="math-box">
+            <div class="math-label">LWE Problem Statement</div>
+            $$\mathbf{b} = \mathbf{A} \cdot \mathbf{s} + \mathbf{e} \pmod{q}$$
+            <p style="font-family:var(--font-mono);font-size:0.82rem;color:var(--text-secondary);margin-top:var(--sp-3);margin-bottom:0">
+              Given: $\mathbf{A} \in \mathbb{Z}_q^{n \times n}$ (public matrix), $\mathbf{b} \in \mathbb{Z}_q^n$ (public vector)<br/>
+              Hidden: $\mathbf{s} \in \mathbb{Z}_q^n$ (secret), $\mathbf{e} \in \chi^n$ (small error, $|e_i| \ll q$)<br/>
+              Find: $\mathbf{s}$ — This is the LWE problem. Believed to be hard even for quantum computers.
+            </p>
+          </div>
+
+          <h4 style="margin-top:var(--sp-6);margin-bottom:var(--sp-4);">🔢 Numerical Example (n=4, q=97)</h4>
+          <p>Let's work through a concrete example with tiny parameters to see LWE in action:</p>
+
+          <div class="card" style="background:var(--bg-surface);">
+            <div class="grid-2" style="gap:var(--sp-5)">
+              <div>
+                <div class="math-label" style="margin-bottom:var(--sp-3)">Step 1: Public Matrix A (random mod 97)</div>
+                <div style="font-family:var(--font-mono);font-size:0.85rem;color:var(--cyan-light);line-height:2">
+                  $\mathbf{A} = \begin{pmatrix} 12 & 47 & 83 & 29 \\ 61 & 5 & 38 & 72 \\ 44 & 91 & 17 & 56 \\ 8 & 33 & 65 & 3 \end{pmatrix} \pmod{97}$
+                </div>
+              </div>
+              <div>
+                <div class="math-label" style="margin-bottom:var(--sp-3)">Step 2: Secret s and Error e</div>
+                <div style="font-family:var(--font-mono);font-size:0.85rem;line-height:2">
+                  <div style="color:var(--purple-light)">$\mathbf{s} = (3, 1, 4, 2)^T$ &nbsp;<span style="color:var(--text-muted)">(small, secret)</span></div>
+                  <div style="color:var(--red)">$\mathbf{e} = (1, -1, 0, 1)^T$ &nbsp;<span style="color:var(--text-muted)">(tiny errors)</span></div>
+                  <div style="margin-top:var(--sp-3);color:var(--text-muted)">Error comes from distribution χ.<br/>All |eᵢ| ≤ 1 ≪ 97/2 = 48.5</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="math-label" style="margin-bottom:var(--sp-2)">Step 3: Compute b = A·s + e mod 97 (Public Key)</div>
+            <div style="font-family:var(--font-mono);font-size:0.85rem;color:var(--green);line-height:2">
+              $\mathbf{b} = \mathbf{A}\mathbf{s} + \mathbf{e} \pmod{97}$<br/>
+              $= (12·3 + 47·1 + 83·4 + 29·2,\; ...) + (1,-1,0,1) \pmod{97}$<br/>
+              $\mathbf{b} = (52, 67, 41, 88)^T \pmod{97}$ &nbsp;← <strong>public key</strong>
+            </div>
+
+            <div class="info-box info-box-cyan" style="margin-top:var(--sp-4);margin-bottom:0">
+              <div class="info-box-icon">🔒</div>
+              <div class="info-box-content">
+                <p><strong>Public key:</strong> (A, b). <strong>Private key:</strong> s.<br/>
+                Given only A and b, finding s requires solving LWE — believed to be computationally infeasible for large n.</p>
+              </div>
+            </div>
+          </div>
+
+          <h4 style="margin-top:var(--sp-6);margin-bottom:var(--sp-4);">🔐 LWE Key Exchange (Simplified)</h4>
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-num step-num-purple">B</div>
+              <div class="step-content">
+                <h5>Bob (Receiver) generates key pair</h5>
+                <p>Generates A, secret s, error e. Publishes (A, b = As+e). Keeps s private.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num step-num-cyan">A</div>
+              <div class="step-content">
+                <h5>Alice (Sender) encapsulates</h5>
+                <p>Chooses random r and errors e₁, e₂. Computes $\mathbf{u} = \mathbf{A}^T\mathbf{r} + \mathbf{e}_1$. Her raw key: $K_A = \mathbf{b}^T\mathbf{r}$. Sends u.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num step-num-green">✓</div>
+              <div class="step-content">
+                <h5>Bob decapsulates</h5>
+                <p>Computes $K_B = \mathbf{s}^T\mathbf{u} \approx K_A$ (small error). After rounding, both have the same shared key!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="math-box" style="margin-top:var(--sp-5)">
+            <div class="math-label">Correctness Condition</div>
+            <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--text-code);margin:0">
+              $K_B = \mathbf{s}^T\mathbf{u} = \mathbf{s}^T(\mathbf{A}^T\mathbf{r} + \mathbf{e}_1) = (\mathbf{A}\mathbf{s})^T\mathbf{r} + \mathbf{s}^T\mathbf{e}_1$<br/>
+              $= (\mathbf{b} - \mathbf{e})^T\mathbf{r} + \mathbf{s}^T\mathbf{e}_1 = K_A - \mathbf{e}^T\mathbf{r} + \mathbf{s}^T\mathbf{e}_1$<br/><br/>
+              If $|\mathbf{e}^T\mathbf{r}| + |\mathbf{s}^T\mathbf{e}_1| &lt; q/4$: decryption succeeds ✓
+            </p>
+          </div>
+        </div>
+
+        <!-- ─── Section 4: Kyber ─── -->
+        <div class="concept-section" id="kyber">
+          <div class="concept-number">SECTION 04</div>
+          <h3><span class="gradient-text">Kyber</span> — Module-LWE in Practice</h3>
+          <p>
+            Kyber (officially <strong>ML-KEM</strong> / FIPS 203) is the NIST post-quantum standard
+            for key encapsulation. It's based on LWE structured in polynomial rings —
+            called <em>Module-LWE</em> — which gives it significant performance advantages over plain LWE.
+          </p>
+
+          <div class="grid-2" style="margin-top:var(--sp-5)">
+            <div class="card">
+              <h4>Plain LWE (our demo)</h4>
+              <div class="step-list" style="margin-top:var(--sp-3)">
+                <div class="step-item" style="gap:var(--sp-2)">
+                  <div class="step-num step-num-cyan" style="width:24px;height:24px;font-size:0.7rem">n</div>
+                  <div class="step-content"><p style="font-size:0.85rem;margin:0">Dimension n=4 (demo), ≥ 256 in practice</p></div>
+                </div>
+                <div class="step-item" style="gap:var(--sp-2)">
+                  <div class="step-num step-num-cyan" style="width:24px;height:24px;font-size:0.7rem">q</div>
+                  <div class="step-content"><p style="font-size:0.85rem;margin:0">Modulus q=97 (demo), large prime in practice</p></div>
+                </div>
+                <div class="step-item" style="gap:var(--sp-2)">
+                  <div class="step-num step-num-cyan" style="width:24px;height:24px;font-size:0.65rem">A</div>
+                  <div class="step-content"><p style="font-size:0.85rem;margin:0">Dense matrix A ∈ ℤ_q^(n×n)</p></div>
+                </div>
+              </div>
+            </div>
+            <div class="card card-purple">
+              <h4>Kyber / Module-LWE</h4>
+              <div class="step-list" style="margin-top:var(--sp-3)">
+                <div class="step-item" style="gap:var(--sp-2)">
+                  <div class="step-num step-num-purple" style="width:24px;height:24px;font-size:0.65rem">n</div>
+                  <div class="step-content"><p style="font-size:0.85rem;margin:0">n=256 polynomial ring ℤ_q[x]/(xⁿ+1)</p></div>
+                </div>
+                <div class="step-item" style="gap:var(--sp-2)">
+                  <div class="step-num step-num-purple" style="width:24px;height:24px;font-size:0.65rem">q</div>
+                  <div class="step-content"><p style="font-size:0.85rem;margin:0">q = 3329 (prime, NTT-friendly)</p></div>
+                </div>
+                <div class="step-item" style="gap:var(--sp-2)">
+                  <div class="step-num step-num-purple" style="width:24px;height:24px;font-size:0.65rem">A</div>
+                  <div class="step-content"><p style="font-size:0.85rem;margin:0">Module structure: k×k matrix of polynomials</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrapper" style="margin-top:var(--sp-6)">
+            <table>
+              <thead>
+                <tr>
+                  <th>Variant</th><th>Security</th><th>Public Key</th><th>Ciphertext</th><th>Use Case</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="highlight">Kyber-512</td><td class="cyan">≈128-bit PQ</td><td>800 B</td><td>768 B</td><td>General use</td></tr>
+                <tr><td class="highlight">Kyber-768</td><td class="cyan">≈192-bit PQ</td><td>1184 B</td><td>1088 B</td><td>High security</td></tr>
+                <tr><td class="highlight">Kyber-1024</td><td class="cyan">≈256-bit PQ</td><td>1568 B</td><td>1568 B</td><td>Top secret</td></tr>
+                <tr><td class="highlight">Our Demo LWE</td><td style="color:var(--amber)">Demo only</td><td>n=4, q=97</td><td>4 integers</td><td>Education</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="info-box info-box-purple" style="margin-top:var(--sp-5)">
+            <div class="info-box-icon">📌</div>
+            <div class="info-box-content">
+              <h5>Our Demo Uses Simplified LWE</h5>
+              <p>Our interactive demo uses n=4, q=97 — tiny parameters chosen so you can see the actual numbers. This is <strong>mathematically equivalent</strong> to Kyber, just with much smaller values. Real Kyber-512 would need n=256, q=3329 and polynomial arithmetic. The key exchange logic is identical in structure.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Section 5: ECDH ─── -->
+        <div class="concept-section" id="ecdh">
+          <div class="concept-number">SECTION 05</div>
+          <h3>Elliptic Curve <span class="gradient-text">Diffie-Hellman (ECDH)</span></h3>
+          <p>
+            ECDH is the most widely deployed key exchange protocol today — used in TLS 1.3,
+            Signal, WhatsApp, and SSH. It's based on the <em>Elliptic Curve Discrete Logarithm
+            Problem</em> (ECDLP), which is hard classically but <strong>vulnerable to Shor's
+            algorithm</strong> on quantum computers.
+          </p>
+
+          <div class="analogy-box">
+            <div class="analogy-label">🧠 Paint Mixing Analogy</div>
+            <p>Alice and Bob each choose a secret color and mix it with a shared public color. They exchange their mixed colors publicly. Each then mixes the other's mixed color with their own secret — arriving at the same final color. An eavesdropper sees both mixed colors but can't determine the secret colors (the "mixing" is one-way).</p>
+          </div>
+
+          <div class="canvas-wrap" style="margin:var(--sp-5) 0">
+            <canvas id="ecdh-canvas" style="width:100%;height:260px;"></canvas>
+          </div>
+
+          <div class="grid-2" style="margin-top:var(--sp-4)">
+            <div class="card">
+              <h4>ECDH Protocol Steps</h4>
+              <div class="step-list" style="margin-top:var(--sp-3)">
+                <div class="step-item">
+                  <div class="step-num step-num-cyan">1</div>
+                  <div class="step-content"><p style="font-size:0.85rem;margin:0">Both agree on curve and generator point G (public)</p></div>
+                </div>
+                <div class="step-item">
+                  <div class="step-num step-num-cyan">2</div>
+                  <div class="step-content"><p style="font-size:0.85rem;margin:0">Alice generates private key a, public key A = aG</p></div>
+                </div>
+                <div class="step-item">
+                  <div class="step-num step-num-cyan">3</div>
+                  <div class="step-content"><p style="font-size:0.85rem;margin:0">Bob generates private key b, public key B = bG</p></div>
+                </div>
+                <div class="step-item">
+                  <div class="step-num step-num-green">4</div>
+                  <div class="step-content"><p style="font-size:0.85rem;margin:0">Shared secret: Alice computes a·B = abG, Bob computes b·A = abG ✓</p></div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <h4>In Our Demo (Web Crypto API)</h4>
+              <p style="font-size:0.85rem;margin-bottom:var(--sp-3)">We use the browser's built-in ECDH with the NIST P-256 curve. This is the same curve used by Google, Microsoft, and Cloudflare.</p>
+              <div class="math-box" style="margin:0">
+                <div class="math-label">P-256 (secp256r1)</div>
+                <p style="font-family:var(--font-mono);font-size:0.78rem;color:var(--text-code);margin:0">
+                  y² = x³ - 3x + b (mod p)<br/>
+                  p = 2²⁵⁶ - 2²²⁴ + 2¹⁹² + 2⁹⁶ - 1<br/>
+                  Security: ≈128-bit classical<br/>
+                  ⚠ Quantum-vulnerable (Shor's)
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Section 6: Hybrid ─── -->
+        <div class="concept-section" id="hybrid">
+          <div class="concept-number">SECTION 06</div>
+          <h3>The <span class="gradient-text">Hybrid Construction</span></h3>
+          <p>
+            We combine ECDH and LWE into a single key exchange. Both run in parallel.
+            Their outputs are hashed together to produce the final symmetric key.
+          </p>
+
+          <div class="card" style="background:linear-gradient(135deg,rgba(6,182,212,0.04),rgba(139,92,246,0.04));margin-top:var(--sp-5);">
+            <div class="flow-diagram" style="flex-direction:column; align-items:flex-start; gap:var(--sp-3)">
+              <div style="display:flex;align-items:center;gap:var(--sp-3)">
+                <div class="flow-box flow-box-cyan" style="width:200px;text-align:center">ECDH Exchange</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box" style="width:180px;text-align:center;color:var(--cyan);background:rgba(6,182,212,0.05);border-color:rgba(6,182,212,0.3)">ECDH_secret (32B)</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:var(--sp-3)">
+                <div class="flow-box flow-box-purple" style="width:200px;text-align:center">LWE Exchange</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box" style="width:180px;text-align:center;color:var(--purple-light);background:rgba(139,92,246,0.05);border-color:rgba(139,92,246,0.3)">LWE_secret (32B)</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:var(--sp-3)">
+                <div class="flow-box" style="width:200px;text-align:center;color:var(--amber);background:rgba(245,158,11,0.05);border-color:rgba(245,158,11,0.3)">Concatenate & Hash</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box flow-box-green" style="width:180px;text-align:center">Hybrid Key (32B)</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:var(--sp-3)">
+                <div class="flow-box flow-box-green" style="width:200px;text-align:center">AES-256-GCM</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box" style="width:180px;text-align:center;color:var(--amber)">Encrypted File 🔒</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="math-box" style="margin-top:var(--sp-5)">
+            <div class="math-label">Hybrid Key Derivation</div>
+            <p style="font-family:var(--font-mono);font-size:0.85rem;color:var(--text-code);margin:0">
+              $K_{hybrid} = \text{SHA-256}(K_{ECDH} \,\|\, K_{LWE} \,\|\, \text{"HybridPQC-v1"})$<br/><br/>
+              $\text{Encrypted file} = \text{AES-256-GCM}_{K_{hybrid}}(\text{plaintext, IV, AAD})$
+            </p>
+          </div>
+        </div>
+
+        <!-- ─── Section 7: Why Hybrid ─── -->
+        <div class="concept-section" id="why-hybrid">
+          <div class="concept-number">SECTION 07</div>
+          <h3>Why <span class="gradient-text">Hybrid</span> Beats Either Alone</h3>
+          <p>
+            This is the key insight. Neither ECDH alone nor LWE alone is perfect. But together, they provide <em>defense in depth</em>:
+          </p>
+
+          <div class="grid-2" style="margin-top:var(--sp-5)">
+            <div class="card">
+              <h4>ECDH Alone</h4>
+              <div class="flex gap-3" style="margin-top:var(--sp-3)">
+                <span>✅</span>
+                <p style="margin:0;font-size:0.875rem">Mature, widely deployed, battle-tested for 20+ years</p>
+              </div>
+              <div class="flex gap-3" style="margin-top:var(--sp-2)">
+                <span>✅</span>
+                <p style="margin:0;font-size:0.875rem">Hardware-accelerated, fast, small keys</p>
+              </div>
+              <div class="flex gap-3" style="margin-top:var(--sp-2)">
+                <span>❌</span>
+                <p style="margin:0;font-size:0.875rem">Broken by quantum computers (Shor's algorithm, ~2030+)</p>
+              </div>
+            </div>
+            <div class="card">
+              <h4>LWE/Kyber Alone</h4>
+              <div class="flex gap-3" style="margin-top:var(--sp-3)">
+                <span>✅</span>
+                <p style="margin:0;font-size:0.875rem">Quantum-resistant under best known attacks</p>
+              </div>
+              <div class="flex gap-3" style="margin-top:var(--sp-2)">
+                <span>✅</span>
+                <p style="margin:0;font-size:0.875rem">NIST standardized (ML-KEM / FIPS 203, 2024)</p>
+              </div>
+              <div class="flex gap-3" style="margin-top:var(--sp-2)">
+                <span>⚠️</span>
+                <p style="margin:0;font-size:0.875rem">Newer — fewer years of public cryptanalysis</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card card-green" style="margin-top:var(--sp-5);text-align:center">
+            <div style="font-size:2.5rem;margin-bottom:var(--sp-3)">🔐✅</div>
+            <h4>Hybrid (ECDH + LWE)</h4>
+            <p style="max-width:500px;margin:var(--sp-3) auto 0">Gets the best of both worlds. Classical cryptographers trust ECDH. Post-quantum researchers trust LWE. Together: to break the hybrid key, an attacker must simultaneously break both — currently impossible.</p>
+          </div>
+
+          <div style="text-align:center;margin-top:var(--sp-8)">
+            <a href="demo.html" class="btn btn-primary btn-lg btn-glow">
+              ⚡ Try the Interactive Demo
+            </a>
+            <a href="math-details.html" class="btn btn-secondary btn-lg" style="margin-left:var(--sp-4)">
+              🧮 See the Math →
+            </a>
+          </div>
+        </div>
+
+      </div><!-- /main content -->
+    </div><!-- /sidebar-layout -->
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="justify-content:center;gap:var(--sp-6)">
+      <a href="index.html" style="color:var(--text-muted);text-decoration:none">Home</a>
+      <a href="math-details.html" style="color:var(--text-muted);text-decoration:none">Math Details</a>
+      <a href="demo.html" style="color:var(--cyan);text-decoration:none;font-weight:600">Try Demo →</a>
+      <a href="security.html" style="color:var(--text-muted);text-decoration:none">Security</a>
+      <a href="about.html" style="color:var(--text-muted);text-decoration:none">About</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/lwe.js"></script>
+<script src="js/lattice-canvas.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>

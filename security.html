@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security Analysis – Hybrid ECDH + LWE | HybridPQC</title>
+  <meta name="description" content="Security analysis of the hybrid ECDH + LWE/Kyber encryption scheme: security levels, assumptions, correctness, comparison, and limitations." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">🔐</div><span class="nav-logo-text">HybridPQC</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="math-details.html">Math Details</a></li>
+      <li><a href="security.html" class="active">Security</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="demo.html" class="nav-cta">Try Demo →</a></li>
+    </ul>
+    <button class="nav-hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-mobile">
+  <a href="index.html">Home</a><a href="how-it-works.html">How It Works</a>
+  <a href="math-details.html">Math Details</a><a href="security.html">Security</a>
+  <a href="about.html">About</a><a href="demo.html">Try Demo →</a>
+</div>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="section-label">🛡️ Security Analysis</div>
+    <h1>Security <span class="gradient-text">Analysis</span></h1>
+    <p>An honest, detailed evaluation of the hybrid ECDH + LWE scheme's security properties, assumptions, limitations, and comparison with alternatives.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+
+    <!-- Security Level Cards -->
+    <div class="section-header reveal">
+      <div class="section-label">📊 Security Levels</div>
+      <h2>Estimated Security <span class="gradient-text">Parameters</span></h2>
+    </div>
+
+    <div class="grid-3 reveal-group" style="margin-bottom:var(--sp-12)">
+      <div class="card reveal">
+        <h4 style="margin-bottom:var(--sp-3)">Classical Security</h4>
+        <div class="security-meter" style="margin-bottom:var(--sp-2)">
+          <div class="security-meter-fill security-meter-classical"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem">
+          <span style="color:var(--text-muted)">0 bits</span>
+          <span style="color:var(--cyan);font-weight:600">~128 bits (ECDH P-256)</span>
+          <span style="color:var(--text-muted)">256 bits</span>
+        </div>
+        <p style="font-size:0.85rem;margin-top:var(--sp-3)">
+          Against classical computers running the best known attacks (Pohlig-Hellman, Pollard's rho for ECDLP; lattice reduction for LWE).
+        </p>
+      </div>
+
+      <div class="card card-purple reveal reveal-delay-1">
+        <h4 style="margin-bottom:var(--sp-3)">Post-Quantum Security</h4>
+        <div class="security-meter" style="margin-bottom:var(--sp-2)">
+          <div class="security-meter-fill security-meter-quantum"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem">
+          <span style="color:var(--text-muted)">0 bits</span>
+          <span style="color:var(--purple-light);font-weight:600">~128 bits (LWE-Kyber)</span>
+          <span style="color:var(--text-muted)">256 bits</span>
+        </div>
+        <p style="font-size:0.85rem;margin-top:var(--sp-3)">
+          Against quantum computers running the best known quantum algorithms (Grover + BKZ). ECDH is broken by Shor's; LWE resists all known quantum attacks.
+        </p>
+      </div>
+
+      <div class="card card-green reveal reveal-delay-2">
+        <h4 style="margin-bottom:var(--sp-3)">Hybrid Security</h4>
+        <div class="security-meter" style="margin-bottom:var(--sp-2)">
+          <div class="security-meter-fill security-meter-hybrid"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.8rem">
+          <span style="color:var(--text-muted)">0 bits</span>
+          <span style="color:var(--green);font-weight:600">max(ECDH, LWE)</span>
+          <span style="color:var(--text-muted)">256 bits</span>
+        </div>
+        <p style="font-size:0.85rem;margin-top:var(--sp-3)">
+          At least as secure as the stronger of the two. Against any attacker (classical or quantum), they must break both ECDH <em>and</em> LWE simultaneously.
+        </p>
+      </div>
+    </div>
+
+    <!-- Security Assumptions -->
+    <div class="section-header reveal">
+      <div class="section-label">🔒 Foundations</div>
+      <h2>Security <span class="gradient-text">Assumptions</span></h2>
+    </div>
+
+    <div class="accordion reveal" style="margin-bottom:var(--sp-12)">
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <span class="accordion-title">ECDLP — Elliptic Curve Discrete Logarithm Problem</span>
+          <span class="accordion-icon">▾</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-body-inner">
+            <p><strong>Assumption:</strong> Given curve $E$ over $\mathbb{F}_p$, generator $G$, and point $Q = kG$, computing $k$ is hard.</p>
+            <div class="math-box">
+              $$\text{ECDLP: Given } (E, G, Q = kG), \text{ find } k$$
+              $$\text{Best classical: } O(\sqrt{p}) \text{ (Pollard's rho)} \approx 2^{128} \text{ for P-256}$$
+              $$\text{Quantum (Shor's): } O((\log p)^3) \text{ — polynomial! Breaks P-256}$$
+            </div>
+            <div class="info-box info-box-amber" style="margin-bottom:0">
+              <div class="info-box-icon">⚠️</div>
+              <div class="info-box-content">
+                <h5>Quantum Vulnerability</h5>
+                <p>Shor's algorithm (1994) can solve ECDLP in polynomial time on a quantum computer. A 4096-qubit fault-tolerant quantum computer could break P-256 in hours. Timeline estimates: 2030-2040 for cryptographically relevant quantum computers.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <span class="accordion-title">LWE — Learning With Errors (Regev 2005)</span>
+          <span class="accordion-icon">▾</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-body-inner">
+            <p><strong>Assumption:</strong> Given $(\mathbf{A}, \mathbf{b} = \mathbf{As} + \mathbf{e})$, finding $\mathbf{s}$ is computationally hard.</p>
+            <div class="math-box">
+              $$\text{LWE}_{n,q,\chi}: \text{Given } (\mathbf{A}, \mathbf{As+e}), \text{ find } \mathbf{s}$$
+              $$\text{Best classical: } 2^{O(\sqrt{n \log(q/\sigma)^2})} \text{ (BKZ lattice reduction)}$$
+              $$\text{Best quantum: Similar — no polynomial quantum algorithm known}$$
+            </div>
+            <p><strong>Hardness reduction:</strong> Regev showed LWE is at least as hard as worst-case SIVP (Shortest Independent Vector Problem) — a notoriously hard lattice problem. If you could solve LWE, you'd solve SIVP for <em>all</em> lattices.</p>
+            <div class="info-box info-box-green" style="margin-bottom:0">
+              <div class="info-box-icon">✓</div>
+              <div class="info-box-content">
+                <h5>Quantum Resistance</h5>
+                <p>No polynomial-time quantum algorithm for LWE is known. Grover's search gives only a quadratic speedup (halves the bit-security), which is compensated by choosing slightly larger parameters.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <span class="accordion-title">AES-256-GCM — Symmetric Security</span>
+          <span class="accordion-icon">▾</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-body-inner">
+            <p>Assuming LWE and ECDH key exchange succeed in establishing a shared key, AES-256-GCM provides:</p>
+            <ul style="color:var(--text-secondary);font-size:0.875rem;line-height:2;padding-left:var(--sp-5)">
+              <li><strong>Confidentiality</strong>: AES-256 is secure against all known classical and quantum attacks (Grover halves key strength to 128 bits — still secure).</li>
+              <li><strong>Authenticity</strong>: GCM provides a 128-bit authentication tag that detects any tampering.</li>
+              <li><strong>Integrity</strong>: Decryption fails (throws OperationError) if the ciphertext or tag is modified.</li>
+            </ul>
+            <div class="math-box" style="margin-bottom:0">
+              $$\text{AES-256 quantum security: } 2^{128} \text{ (Grover's gives } 2^{128} \text{, not } 2^{256} \text{)}$$
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="section-header reveal">
+      <div class="section-label">📊 Comparison</div>
+      <h2>Algorithm <span class="gradient-text">Comparison</span></h2>
+    </div>
+
+    <div class="table-wrapper reveal" style="margin-bottom:var(--sp-12)">
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>ECDH (P-256)</th>
+            <th>Plain LWE</th>
+            <th>Kyber-512</th>
+            <th>Hybrid (Ours)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="highlight">Classical security</td>
+            <td class="cyan">128 bits</td>
+            <td class="cyan">128+ bits</td>
+            <td class="cyan">~100 bits</td>
+            <td class="green">128+ bits</td>
+          </tr>
+          <tr>
+            <td class="highlight">Quantum security</td>
+            <td style="color:var(--red)">Broken (Shor)</td>
+            <td class="green">128+ bits</td>
+            <td class="green">~100 bits</td>
+            <td class="green">128+ bits</td>
+          </tr>
+          <tr>
+            <td class="highlight">Deployment history</td>
+            <td class="cyan">20+ years</td>
+            <td style="color:var(--amber)">Theoretical</td>
+            <td style="color:var(--amber)">NIST 2024</td>
+            <td class="green">Both combined</td>
+          </tr>
+          <tr>
+            <td class="highlight">Key generation speed</td>
+            <td class="cyan">Very fast</td>
+            <td style="color:var(--amber)">Moderate</td>
+            <td class="cyan">Fast (NTT)</td>
+            <td style="color:var(--amber)">Both combined</td>
+          </tr>
+          <tr>
+            <td class="highlight">Public key size</td>
+            <td class="cyan">64 bytes</td>
+            <td style="color:var(--amber)">Large (n²)</td>
+            <td class="green">800 bytes</td>
+            <td style="color:var(--amber)">Both combined</td>
+          </tr>
+          <tr>
+            <td class="highlight">Quantum attack exists?</td>
+            <td style="color:var(--red)">Yes (Shor)</td>
+            <td class="green">No known</td>
+            <td class="green">No known</td>
+            <td class="green">Must break both</td>
+          </tr>
+          <tr>
+            <td class="highlight">NIST standardized</td>
+            <td class="cyan">Yes (P-256)</td>
+            <td style="color:var(--text-muted)">No</td>
+            <td class="green">Yes (ML-KEM)</td>
+            <td class="green">Both components</td>
+          </tr>
+          <tr>
+            <td class="highlight">Used in this demo</td>
+            <td class="green">✓ Real (P-256)</td>
+            <td class="cyan">✓ Simplified (n=4)</td>
+            <td style="color:var(--text-muted)">Structure only</td>
+            <td class="green">✓ Full hybrid</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- "What if one breaks?" Interactive -->
+    <div class="section-header reveal">
+      <div class="section-label">🎭 Attack Scenarios</div>
+      <h2>What If One Algorithm <span class="gradient-text">Is Broken?</span></h2>
+    </div>
+
+    <div class="grid-2 reveal-group" style="margin-bottom:var(--sp-12)">
+      <div class="card card-cyan reveal">
+        <h4>Scenario 1: Quantum Computer Breaks ECDH</h4>
+        <div class="info-box info-box-amber" style="margin-bottom:var(--sp-3)">
+          <div class="info-box-icon">⚛️</div>
+          <div class="info-box-content">
+            <p>A large-scale fault-tolerant quantum computer runs Shor's algorithm and recovers Alice's ECDH private key from her public key.</p>
+          </div>
+        </div>
+        <p style="font-size:0.875rem;margin-bottom:var(--sp-3)">The attacker now knows $K_{ECDH}$. But to decrypt the file, they need:</p>
+        <div style="font-family:var(--font-mono);font-size:0.82rem;background:#0d1117;border:1px solid var(--border);padding:var(--sp-3);border-radius:var(--radius-sm)">
+          $K_{hybrid} = \text{SHA-256}(\underbrace{K_{ECDH}}_{\text{known}} \| \underbrace{K_{LWE}}_{\text{still secret!}})$
+        </div>
+        <div class="info-box info-box-green" style="margin-top:var(--sp-3);margin-bottom:0">
+          <div class="info-box-icon">✓</div>
+          <div class="info-box-content">
+            <p><strong>Data remains safe.</strong> LWE is still secure. The hybrid key is computationally indistinguishable from random without both components.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-purple reveal reveal-delay-1">
+        <h4>Scenario 2: New Attack on LWE</h4>
+        <div class="info-box info-box-amber" style="margin-bottom:var(--sp-3)">
+          <div class="info-box-icon">🔬</div>
+          <div class="info-box-content">
+            <p>A breakthrough algorithm (classical or quantum) efficiently solves LWE, recovering the LWE secret from the public key.</p>
+          </div>
+        </div>
+        <p style="font-size:0.875rem;margin-bottom:var(--sp-3)">The attacker now knows $K_{LWE}$. But to decrypt the file, they need:</p>
+        <div style="font-family:var(--font-mono);font-size:0.82rem;background:#0d1117;border:1px solid var(--border);padding:var(--sp-3);border-radius:var(--radius-sm)">
+          $K_{hybrid} = \text{SHA-256}(\underbrace{K_{ECDH}}_{\text{still secret!}} \| \underbrace{K_{LWE}}_{\text{known}})$
+        </div>
+        <div class="info-box info-box-green" style="margin-top:var(--sp-3);margin-bottom:0">
+          <div class="info-box-icon">✓</div>
+          <div class="info-box-content">
+            <p><strong>Data remains safe.</strong> ECDH is still secure classically. The SHA-256 hash prevents recovery from partial input.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Limitations -->
+    <div class="section-header reveal">
+      <div class="section-label">⚠️ Honest Limitations</div>
+      <h2>Demo <span class="gradient-text">Limitations</span></h2>
+    </div>
+
+    <div class="grid-2 reveal-group" style="margin-bottom:var(--sp-8)">
+      <div class="card reveal">
+        <h4>🔮 Simplified LWE Parameters</h4>
+        <p style="font-size:0.875rem">n=4, q=97 provides <strong>zero real security</strong>. A 4×4 linear system with noisy data can be solved by brute force in milliseconds. This is for demonstration only. Real Kyber uses n=256, q=3329.</p>
+        <div class="badge badge-amber" style="margin-top:var(--sp-3)">Demo only — not for production</div>
+      </div>
+      <div class="card reveal reveal-delay-1">
+        <h4>🔑 No Key Storage / Transport</h4>
+        <p style="font-size:0.875rem">The hybrid key exists only in the browser's memory during this session. In a real system, you'd need a secure out-of-band channel to transmit the key, or a Public Key Infrastructure (PKI) to handle key agreements.</p>
+      </div>
+      <div class="card reveal reveal-delay-2">
+        <h4>🌐 No Network Transfer</h4>
+        <p style="font-size:0.875rem">The "file transfer" in this demo is: encrypt → download → re-upload → decrypt. A real system would need secure networking (TLS with PQ extensions), certificate validation, and authentication.</p>
+      </div>
+      <div class="card reveal reveal-delay-3">
+        <h4>📱 Browser Security Boundary</h4>
+        <p style="font-size:0.875rem">All crypto runs in the browser's JS runtime. A real system would use hardware security modules (HSMs) or secure enclaves for key storage. Browser-based crypto is fine for demos but has side-channel risks.</p>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:var(--sp-8)" class="reveal">
+      <a href="demo.html" class="btn btn-primary btn-lg btn-glow">⚡ Try the Demo</a>
+      <a href="about.html" class="btn btn-secondary btn-lg" style="margin-left:var(--sp-4)">Learning Outcomes →</a>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="justify-content:center;gap:var(--sp-6)">
+      <a href="index.html" style="color:var(--text-muted);text-decoration:none">Home</a>
+      <a href="how-it-works.html" style="color:var(--text-muted);text-decoration:none">How It Works</a>
+      <a href="demo.html" style="color:var(--cyan);text-decoration:none;font-weight:600">Try Demo →</a>
+      <a href="about.html" style="color:var(--text-muted);text-decoration:none">About</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/animations.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>

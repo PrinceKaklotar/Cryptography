@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mathematical Details – LWE, Kyber Equations | HybridPQC</title>
+  <meta name="description" content="Deep-dive into the mathematics of LWE encryption: key generation, encryption, decryption, correctness conditions, and security parameters." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})"></script>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">🔐</div><span class="nav-logo-text">HybridPQC</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="math-details.html" class="active">Math Details</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="demo.html" class="nav-cta">Try Demo →</a></li>
+    </ul>
+    <button class="nav-hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-mobile">
+  <a href="index.html">Home</a><a href="how-it-works.html">How It Works</a>
+  <a href="math-details.html">Math Details</a><a href="security.html">Security</a>
+  <a href="about.html">About</a><a href="demo.html">Try Demo →</a>
+</div>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="section-label">🧮 Deep Dive</div>
+    <h1><span class="gradient-text">Mathematical Details</span></h1>
+    <p>The full equations behind LWE, Kyber key generation, encryption, decryption, and the correctness proof. Click any section to expand.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+    <div class="sidebar-layout">
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-nav-title">Sections</div>
+        <a href="#notation">Notation</a>
+        <a href="#lwe-def">LWE Definition</a>
+        <a href="#lwe-keygen">Key Generation</a>
+        <a href="#lwe-enc">Encryption</a>
+        <a href="#lwe-dec">Decryption</a>
+        <a href="#correctness">Correctness</a>
+        <a href="#params">Parameters</a>
+        <a href="#src-code">Source Code</a>
+      </nav>
+
+      <div>
+
+        <!-- Notation -->
+        <div class="concept-section" id="notation">
+          <div class="concept-number">§1</div>
+          <h3>Notation <span class="gradient-text">Reference</span></h3>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Symbol</th><th>Meaning</th><th>Value (Demo)</th></tr></thead>
+              <tbody>
+                <tr><td class="cyan">$n$</td><td>Lattice dimension (LWE security parameter)</td><td class="highlight">4 (real Kyber: 256)</td></tr>
+                <tr><td class="cyan">$q$</td><td>Modulus (prime integer)</td><td class="highlight">97 (real Kyber: 3329)</td></tr>
+                <tr><td class="cyan">$\mathbb{Z}_q$</td><td>Integers modulo q: $\{0, 1, \ldots, q-1\}$</td><td class="highlight">$\{0, \ldots, 96\}$</td></tr>
+                <tr><td class="purple">$\mathbf{A}$</td><td>Public random matrix $\in \mathbb{Z}_q^{n \times n}$</td><td class="highlight">4×4 matrix</td></tr>
+                <tr><td class="purple">$\mathbf{s}$</td><td>Secret key vector $\in \mathbb{Z}_q^n$ (small)</td><td class="highlight">$s_i \in \{0,1,2\}$</td></tr>
+                <tr><td class="purple">$\mathbf{e}$</td><td>Error vector sampled from $\chi^n$</td><td class="highlight">$e_i \in \{-1,0,1\}$</td></tr>
+                <tr><td class="green">$\mathbf{b}$</td><td>Public LWE sample: $\mathbf{b} = \mathbf{As} + \mathbf{e}$</td><td class="highlight">Public key component</td></tr>
+                <tr><td class="cyan">$\chi$</td><td>Error distribution (discrete Gaussian)</td><td class="highlight">Centered binomial $B(2,0.5)-1$</td></tr>
+                <tr><td class="cyan">$\eta$</td><td>Error distribution parameter</td><td class="highlight">1 (standard deviation ≈ 0.7)</td></tr>
+                <tr><td class="cyan">$\lfloor \cdot \rceil$</td><td>Round to nearest integer</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- LWE Definition -->
+        <div class="concept-section" id="lwe-def">
+          <div class="concept-number">§2</div>
+          <h3>LWE <span class="gradient-text">Definition</span></h3>
+          <p>Two problems define LWE security:</p>
+
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header">
+                <span class="accordion-title">Search LWE (LWE_search)</span>
+                <span class="accordion-icon">▾</span>
+              </button>
+              <div class="accordion-body">
+                <div class="accordion-body-inner">
+                  <p>Given samples $(\mathbf{A}, \mathbf{b}) = (\mathbf{A}, \mathbf{As} + \mathbf{e})$ where $\mathbf{A} \xleftarrow{R} \mathbb{Z}_q^{n \times n}$, $\mathbf{s} \xleftarrow{R} \mathbb{Z}_q^n$, $\mathbf{e} \xleftarrow{} \chi^n$, find $\mathbf{s}$.</p>
+                  <div class="math-box">
+                    $$\text{LWE}_{n,q,\chi}\text{-search}: \text{Given } (\mathbf{A}, \mathbf{As+e}) \in \mathbb{Z}_q^{n\times n} \times \mathbb{Z}_q^n, \text{ find } \mathbf{s}$$
+                  </div>
+                  <p>This is believed to be computationally infeasible for appropriate $(n, q, \chi)$.</p>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">
+                <span class="accordion-title">Decision LWE (LWE_decision)</span>
+                <span class="accordion-icon">▾</span>
+              </button>
+              <div class="accordion-body">
+                <div class="accordion-body-inner">
+                  <p>Distinguish between $(\mathbf{A}, \mathbf{As+e})$ (LWE samples) and $(\mathbf{A}, \mathbf{u})$ where $\mathbf{u} \xleftarrow{R} \mathbb{Z}_q^n$ (uniformly random). If this is hard, LWE is semantically secure.</p>
+                  <div class="math-box">
+                    $$|\Pr[\mathcal{A}(\mathbf{A}, \mathbf{As+e}) = 1] - \Pr[\mathcal{A}(\mathbf{A}, \mathbf{u}) = 1]| \leq \text{negl}(n)$$
+                  </div>
+                  <p>Regev (2005) showed that Decision-LWE ≤ Search-LWE via a reduction, and that LWE is as hard as worst-case lattice problems (GapSVP, SIVP).</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Generation -->
+        <div class="concept-section" id="lwe-keygen">
+          <div class="concept-number">§3</div>
+          <h3>LWE Key <span class="gradient-text">Generation</span></h3>
+
+          <div class="math-box">
+            <div class="math-label">KeyGen(n, q, χ)</div>
+            $$\mathbf{A} \xleftarrow{R} \mathbb{Z}_q^{n \times n}, \quad \mathbf{s} \xleftarrow{R} \mathbb{Z}_q^n, \quad \mathbf{e} \xleftarrow{} \chi^n$$
+            $$\mathbf{b} := \mathbf{As} + \mathbf{e} \pmod{q}$$
+            $$\text{Public key: } pk = (\mathbf{A}, \mathbf{b}), \quad \text{Secret key: } sk = \mathbf{s}$$
+          </div>
+
+          <p><strong>Security:</strong> Given $(pk = (\mathbf{A}, \mathbf{b}))$, recovering $sk = \mathbf{s}$ requires solving LWE. The error $\mathbf{e}$ is essential — without it, you'd have $\mathbf{b} = \mathbf{As}$ and solving for $\mathbf{s}$ is trivial (Gaussian elimination).</p>
+
+          <div class="info-box info-box-amber">
+            <div class="info-box-icon">⚠️</div>
+            <div class="info-box-content">
+              <h5>Why Error is Critical</h5>
+              <p>Remove the error $\mathbf{e}$, and you have $\mathbf{b} = \mathbf{As}$: a linear system solvable in $O(n^3)$ with Gaussian elimination. The error is what makes it a lattice problem instead of linear algebra.</p>
+            </div>
+          </div>
+
+          <!-- JavaScript code -->
+          <div style="margin-top:var(--sp-5)">
+            <div class="code-block-header">
+              <span class="code-lang">JavaScript</span>
+              <button class="btn-copy">Copy</button>
+            </div>
+            <pre><code>// LWE Key Generation (from our lwe.js)
+function keyGen(n = 4, q = 97) {
+  // Public matrix A: random entries mod q
+  const A = Array.from({ length: n }, () =>
+    Array.from({ length: n }, () => randMod(q))
+  );
+
+  // Secret vector s: small values (centered binomial)
+  const s = Array.from({ length: n }, () => mod(sampleError(2), q));
+
+  // Error vector e from narrow distribution χ
+  const e = Array.from({ length: n }, () => sampleError(1)); // |e_i| ≤ 1
+
+  // b = A·s + e mod q  ← This is the LWE hard problem
+  const As = matVecMulMod(A, s, q);  // matrix-vector multiply
+  const b = As.map((v, i) => mod(v + e[i], q));
+
+  return {
+    publicKey: { A, b },   // (A, b) is public
+    secretKey: s           // s is private
+  };
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- Encryption -->
+        <div class="concept-section" id="lwe-enc">
+          <div class="concept-number">§4</div>
+          <h3>LWE <span class="gradient-text">Encryption (Encapsulation)</span></h3>
+          <p>The sender uses the receiver's public key to encapsulate a shared secret.</p>
+
+          <div class="math-box">
+            <div class="math-label">Encapsulate(pk = (A, b), η)</div>
+            $$\mathbf{r} \xleftarrow{} \chi^n, \quad \mathbf{e}_1 \xleftarrow{} \chi^n, \quad \mathbf{e}_2 \xleftarrow{} \chi$$
+            $$\mathbf{u} := \mathbf{A}^T \mathbf{r} + \mathbf{e}_1 \pmod{q}$$
+            $$v := \mathbf{b}^T \mathbf{r} + e_2 + \left\lfloor \frac{q}{2} \right\rfloor \cdot m \pmod{q}$$
+            $$\text{Ciphertext: } ct = (\mathbf{u}, v), \quad \text{Sender's view: } K_A = \mathbf{b}^T\mathbf{r}$$
+          </div>
+
+          <p>In our demo, we simplify to just $\mathbf{u} = \mathbf{A}^T\mathbf{r} + \mathbf{e}_1$ and derive the shared key directly from $K_A = \mathbf{b}^T\mathbf{r} \pmod{q}$, which captures the core LWE exchange logic.</p>
+
+          <div class="code-block-header">
+            <span class="code-lang">JavaScript</span>
+            <button class="btn-copy">Copy</button>
+          </div>
+          <pre><code>// LWE Encapsulation (Sender side)
+function encapsulate(publicKey, noiseBound = 1, n = 4, q = 97) {
+  const { A, b } = publicKey;
+
+  // Choose random r (small, like a one-time secret)
+  const r = generateSecret(n, q);  // small values
+
+  // Error vectors for encapsulation (adds security)
+  const e1 = generateErrorVec(n, noiseBound);
+
+  // Compute u = A^T · r + e1 mod q (ciphertext sent to Bob)
+  const AT = transpose(A);
+  const ATr = matVecMulMod(AT, r, q);
+  const u = ATr.map((v, i) => mod(v + e1[i], q));
+
+  // Alice's raw shared key: K_A = b^T · r (inner product)
+  const kAlice = dotMod(b, r, q);
+
+  return { ciphertext: u, rawSecret: kAlice };
+}</code></pre>
+        </div>
+
+        <!-- Decryption -->
+        <div class="concept-section" id="lwe-dec">
+          <div class="concept-number">§5</div>
+          <h3>LWE <span class="gradient-text">Decryption (Decapsulation)</span></h3>
+
+          <div class="math-box">
+            <div class="math-label">Decapsulate(sk = s, ct = u)</div>
+            $$K_B := \mathbf{s}^T \mathbf{u} \pmod{q}$$
+            $$= \mathbf{s}^T(\mathbf{A}^T\mathbf{r} + \mathbf{e}_1)$$
+            $$= (\mathbf{As})^T\mathbf{r} + \mathbf{s}^T\mathbf{e}_1$$
+            $$= (\mathbf{b} - \mathbf{e})^T\mathbf{r} + \mathbf{s}^T\mathbf{e}_1$$
+            $$= \underbrace{\mathbf{b}^T\mathbf{r}}_{= K_A} - \underbrace{\mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1}_{\text{noise term } \delta}$$
+          </div>
+
+          <p>So $K_B = K_A - \delta$. If the noise $|\delta| < q/4$, then rounding both $K_A$ and $K_B$ to the nearest multiple of $\lfloor q/4 \rfloor$ gives the same result. This is the <em>reconciliation</em> step.</p>
+
+          <div class="code-block-header">
+            <span class="code-lang">JavaScript</span>
+            <button class="btn-copy">Copy</button>
+          </div>
+          <pre><code>// LWE Decapsulation (Receiver side)
+function decapsulate(secretKey, ciphertext, q = 97) {
+  // K_B = s^T · u mod q
+  // When noise is small: K_B ≈ K_A ← the same key!
+  const kBob = dotMod(secretKey, ciphertext, q);
+  return kBob;
+}
+
+// Check correctness and derive key bytes
+async function deriveKeyBytes(kAlice, kBob, q = 97) {
+  const diff = Math.min(
+    Math.abs(kAlice - kBob),
+    q - Math.abs(kAlice - kBob)
+  );
+  const match = diff < Math.floor(q / 4);  // correctness bound!
+
+  // Hash to get 32 uniform bytes (key derivation)
+  const rounded = match ? round(kAlice) : kAlice;
+  const buf = new TextEncoder().encode(`LWE_SECRET_${rounded}_q${q}`);
+  const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+
+  return { match, difference: diff, keyBytes: new Uint8Array(hashBuf) };
+}</code></pre>
+        </div>
+
+        <!-- Correctness -->
+        <div class="concept-section" id="correctness">
+          <div class="concept-number">§6</div>
+          <h3>Correctness <span class="gradient-text">Condition</span></h3>
+
+          <div class="math-box">
+            <div class="math-label">Decryption Succeeds When:</div>
+            $$|\delta| = |\mathbf{e}^T\mathbf{r} - \mathbf{s}^T\mathbf{e}_1| < \frac{q}{4}$$
+          </div>
+
+          <p>For our demo parameters ($n=4, q=97$, errors in $\{-1,0,1\}$, secret in $\{0,1,2\}$):</p>
+
+          <div class="grid-2" style="margin-top:var(--sp-4)">
+            <div class="card card-cyan">
+              <h5>Noise bound analysis</h5>
+              <p style="font-family:var(--font-mono);font-size:0.82rem;line-height:2">
+                $|\mathbf{e}^T\mathbf{r}| \leq n \cdot \eta_e \cdot \eta_r = 4 \cdot 1 \cdot 2 = 8$<br/>
+                $|\mathbf{s}^T\mathbf{e}_1| \leq n \cdot \eta_s \cdot \eta_{e_1} = 4 \cdot 2 \cdot 1 = 8$<br/>
+                $|\delta|_{\max} \leq 16 &lt; \lfloor 97/4 \rfloor = 24$&nbsp; ✓
+              </p>
+            </div>
+            <div class="card card-green">
+              <h5>Failure probability</h5>
+              <p>For our demo: failure ≈ 0 (the deterministic worst-case is within bound). Real Kyber-512's decryption failure probability is $\approx 2^{-139}$ — essentially zero.</p>
+            </div>
+          </div>
+
+          <div class="info-box info-box-cyan" style="margin-top:var(--sp-5)">
+            <div class="info-box-icon">🎛️</div>
+            <div class="info-box-content">
+              <h5>Demo Feature: Increase Noise</h5>
+              <p>In the interactive demo, you can increase the noise bound beyond the correctness threshold. When $|\delta| \geq q/4$, decryption fails — this visualizes <em>why</em> parameter selection matters and why real Kyber uses careful parameter engineering.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Parameters -->
+        <div class="concept-section" id="params">
+          <div class="concept-number">§7</div>
+          <h3>Security <span class="gradient-text">Parameters</span></h3>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Parameter</th><th>Our Demo</th><th>Kyber-512</th><th>Kyber-768</th><th>Kyber-1024</th></tr>
+              </thead>
+              <tbody>
+                <tr><td class="highlight">$n$ (dimension)</td><td>4</td><td class="cyan">256</td><td class="cyan">256</td><td class="cyan">256</td></tr>
+                <tr><td class="highlight">$q$ (modulus)</td><td>97</td><td class="cyan">3329</td><td class="cyan">3329</td><td class="cyan">3329</td></tr>
+                <tr><td class="highlight">$k$ (module rank)</td><td>—</td><td class="cyan">2</td><td class="cyan">3</td><td class="cyan">4</td></tr>
+                <tr><td class="highlight">$\eta_1$ (secret noise)</td><td>2</td><td class="cyan">3</td><td class="cyan">2</td><td class="cyan">2</td></tr>
+                <tr><td class="highlight">$\eta_2$ (enc noise)</td><td>1</td><td class="cyan">2</td><td class="cyan">2</td><td class="cyan">2</td></tr>
+                <tr><td class="highlight">Classical security</td><td style="color:var(--amber)">Demo only</td><td class="green">~100 bits</td><td class="green">~161 bits</td><td class="green">~218 bits</td></tr>
+                <tr><td class="highlight">Quantum security</td><td style="color:var(--amber)">Demo only</td><td class="green">~100 bits</td><td class="green">~161 bits</td><td class="green">~218 bits</td></tr>
+                <tr><td class="highlight">Public key size</td><td>~90 B</td><td class="cyan">800 B</td><td class="cyan">1,184 B</td><td class="cyan">1,568 B</td></tr>
+                <tr><td class="highlight">Dec. failure prob.</td><td>~0</td><td class="green">$2^{-139}$</td><td class="green">$2^{-164}$</td><td class="green">$2^{-174}$</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Source Code -->
+        <div class="concept-section" id="src-code">
+          <div class="concept-number">§8</div>
+          <h3>Full <span class="gradient-text">Source Code</span></h3>
+          <p>The complete LWE implementation is in <code>js/lwe.js</code>. Key primitives:</p>
+
+          <div class="accordion" style="margin-top:var(--sp-4)">
+            <div class="accordion-item">
+              <button class="accordion-header">
+                <span class="accordion-title">Modular Arithmetic</span>
+                <span class="accordion-icon">▾</span>
+              </button>
+              <div class="accordion-body">
+                <div class="accordion-body-inner">
+                  <pre><code>// Correct modular reduction (handles negative numbers)
+function mod(x, q) { return ((x % q) + q) % q; }
+
+// Matrix-vector multiply mod q
+function matVecMulMod(A, v, q) {
+  return A.map(row =>
+    mod(row.reduce((sum, a, j) => sum + a * v[j], 0), q)
+  );
+}
+
+// Inner product mod q
+function dotMod(a, b, q) {
+  return mod(a.reduce((sum, x, i) => sum + x * b[i], 0), q);
+}</code></pre>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">
+                <span class="accordion-title">Error Distribution Sampling</span>
+                <span class="accordion-icon">▾</span>
+              </button>
+              <div class="accordion-body">
+                <div class="accordion-body-inner">
+                  <p>We use a <em>centered binomial distribution</em> $B(2\eta, 1/2) - \eta$, which approximates a discrete Gaussian and is easy to implement securely:</p>
+                  <pre><code>// Sample from centered binomial distribution
+// Models discrete Gaussian χ with parameter η
+function sampleError(eta = 1) {
+  let s = 0;
+  for (let i = 0; i &lt; 2 * eta; i++) {
+    const arr = new Uint8Array(1);
+    crypto.getRandomValues(arr);
+    s += arr[0] & 1;   // uniform bit
+  }
+  return s - eta;  // center at 0: values in {-η, ..., η}
+}
+// E[sampleError] = 0, Var[sampleError] = η/2</code></pre>
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">
+                <span class="accordion-title">Hybrid Key Derivation</span>
+                <span class="accordion-icon">▾</span>
+              </button>
+              <div class="accordion-body">
+                <div class="accordion-body-inner">
+                  <pre><code>// Hybrid key: SHA-256(ECDH_secret || LWE_secret || label)
+async function deriveHybridKey(ecdhSecret, lweSecret) {
+  const label = new TextEncoder().encode('HybridPQC-v1:ECDH+LWE');
+  const material = concat(concat(ecdhSecret, lweSecret), label);
+
+  const hashBuf = await crypto.subtle.digest('SHA-256', material);
+  const hybridKeyBytes = new Uint8Array(hashBuf);
+
+  // Import as AES-256-GCM key for direct use
+  const aesKey = await crypto.subtle.importKey(
+    'raw', hybridKeyBytes,
+    { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']
+  );
+  return { hybridKeyBytes, hybridKeyHex: toHex(hybridKeyBytes), aesKey };
+}</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center;margin-top:var(--sp-8)">
+            <a href="demo.html" class="btn btn-primary btn-lg btn-glow">⚡ See It In Action</a>
+            <a href="security.html" class="btn btn-secondary btn-lg" style="margin-left:var(--sp-4)">Security Analysis →</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="justify-content:center;gap:var(--sp-6)">
+      <a href="index.html" style="color:var(--text-muted);text-decoration:none">Home</a>
+      <a href="how-it-works.html" style="color:var(--text-muted);text-decoration:none">How It Works</a>
+      <a href="demo.html" style="color:var(--cyan);text-decoration:none;font-weight:600">Try Demo →</a>
+      <a href="security.html" style="color:var(--text-muted);text-decoration:none">Security</a>
+      <a href="about.html" style="color:var(--text-muted);text-decoration:none">About</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/animations.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>

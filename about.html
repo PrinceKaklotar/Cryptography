@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About & References – Learning Outcomes | HybridPQC</title>
+  <meta name="description" content="Learning outcomes, project challenges, future work, and academic references for the Hybrid Post-Quantum File Transfer project." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">🔐</div><span class="nav-logo-text">HybridPQC</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="math-details.html">Math Details</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="demo.html" class="nav-cta">Try Demo →</a></li>
+    </ul>
+    <button class="nav-hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-mobile">
+  <a href="index.html">Home</a><a href="how-it-works.html">How It Works</a>
+  <a href="math-details.html">Math Details</a><a href="security.html">Security</a>
+  <a href="about.html">About</a><a href="demo.html">Try Demo →</a>
+</div>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="section-label">📋 Project Summary</div>
+    <h1>About This <span class="gradient-text">Project</span></h1>
+    <p>Learning outcomes, challenges encountered, future work, and references for the Hybrid Post-Quantum File Transfer Tool.</p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="container">
+
+    <!-- What We Built -->
+    <div class="section-header reveal">
+      <div class="section-label">✅ What Was Built</div>
+      <h2>Project <span class="gradient-text">Overview</span></h2>
+    </div>
+
+    <div class="two-col reveal" style="margin-bottom:var(--sp-12)">
+      <div>
+        <p class="lead">This project implements a <strong>hybrid post-quantum encrypted file transfer</strong> web application — entirely in the browser using HTML, CSS, and JavaScript with the Web Crypto API.</p>
+        <p style="margin-top:var(--sp-4)">The goal was to demonstrate that cutting-edge cryptography, while mathematically complex, can be made accessible and interactive. By showing the actual matrix operations, hex keys, and step-by-step process, students can understand the mechanics behind NIST's 2024 post-quantum standards.</p>
+
+        <div class="step-list" style="margin-top:var(--sp-6)">
+          <div class="step-item">
+            <div class="step-num step-num-cyan">✓</div>
+            <div class="step-content">
+              <h5>Real ECDH key exchange (Web Crypto API, P-256)</h5>
+              <p>Not a simulation — actual browser cryptography</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num step-num-purple">✓</div>
+            <div class="step-content">
+              <h5>Simplified but mathematically correct LWE (n=4, q=97)</h5>
+              <p>Real matrix operations, error sampling, correctness proof</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num step-num-green">✓</div>
+            <div class="step-content">
+              <h5>Hybrid key derivation via SHA-256</h5>
+              <p>Domain-separated combination of both secrets</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num step-num-cyan">✓</div>
+            <div class="step-content">
+              <h5>Real AES-256-GCM file encryption + download</h5>
+              <p>Authenticated encryption, custom .hpqc file format</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num step-num-green">✓</div>
+            <div class="step-content">
+              <h5>Interactive noise demo (correctness failure visualization)</h5>
+              <p>Increase η to break decryption — shows parameter importance</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col-sticky">
+        <div class="card card-cyan glow-cyan">
+          <h4 style="margin-bottom:var(--sp-4)">📦 Project Stats</h4>
+          <div style="display:flex;flex-direction:column;gap:var(--sp-3)">
+            <div class="flex-between">
+              <span style="color:var(--text-muted);font-size:0.875rem">Total files</span>
+              <span class="badge badge-cyan">16 files</span>
+            </div>
+            <div class="flex-between">
+              <span style="color:var(--text-muted);font-size:0.875rem">Pages</span>
+              <span class="badge badge-cyan">6 pages</span>
+            </div>
+            <div class="flex-between">
+              <span style="color:var(--text-muted);font-size:0.875rem">Crypto library</span>
+              <span class="badge badge-green">Web Crypto API (native)</span>
+            </div>
+            <div class="flex-between">
+              <span style="color:var(--text-muted);font-size:0.875rem">Backend required</span>
+              <span class="badge badge-green">None (pure frontend)</span>
+            </div>
+            <div class="flex-between">
+              <span style="color:var(--text-muted);font-size:0.875rem">Math rendering</span>
+              <span class="badge badge-purple">KaTeX (CDN)</span>
+            </div>
+            <div class="flex-between">
+              <span style="color:var(--text-muted);font-size:0.875rem">Encryption</span>
+              <span class="badge badge-cyan">AES-256-GCM (real)</span>
+            </div>
+            <div class="flex-between">
+              <span style="color:var(--text-muted);font-size:0.875rem">JS dependencies</span>
+              <span class="badge badge-green">Zero (no npm)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Learning Outcomes -->
+    <div class="section-header reveal">
+      <div class="section-label">🎓 What I Learned</div>
+      <h2>Learning <span class="gradient-text">Outcomes</span></h2>
+    </div>
+
+    <div class="grid-auto reveal-group" style="margin-bottom:var(--sp-12)">
+      <div class="card reveal hover-lift">
+        <div class="card-icon card-icon-purple">🔮</div>
+        <h4>Lattice-Based Cryptography</h4>
+        <p>Deep understanding of LWE, its connection to lattice hard problems (SVP, SIVP), and why random errors create computational hardness. The mathematical reduction from LWE to worst-case lattice problems is elegant and non-trivial.</p>
+      </div>
+      <div class="card reveal reveal-delay-1 hover-lift">
+        <div class="card-icon card-icon-cyan">📜</div>
+        <h4>NIST Standardization</h4>
+        <p>Followed the NIST PQC competition (2016-2024). Kyber (ML-KEM, FIPS 203) emerged as the primary KEM standard. Understanding the design philosophy: security proofs, efficiency trade-offs, implementation simplicity.</p>
+      </div>
+      <div class="card reveal reveal-delay-2 hover-lift">
+        <div class="card-icon card-icon-green">🔀</div>
+        <h4>Hybrid Cryptography</h4>
+        <p>Why hybrid is NIST's recommendation for the transition period (2024-2030+). The composability of KEMs: if either component is secure, the combined key is secure. Domain separation via labeled hashing.</p>
+      </div>
+      <div class="card reveal reveal-delay-3 hover-lift">
+        <div class="card-icon card-icon-amber">💻</div>
+        <h4>Web Crypto API</h4>
+        <p>The browser's native crypto API is powerful: ECDH, AES-GCM, SHA-256 all natively available. The API is subtly different from Node.js's crypto module — promise-based, with strict key extractability policies.</p>
+      </div>
+    </div>
+
+    <!-- Challenges -->
+    <div class="section-header reveal">
+      <div class="section-label">⚡ Challenges</div>
+      <h2>Challenges <span class="gradient-text">Faced</span></h2>
+    </div>
+
+    <div class="timeline reveal" style="margin-bottom:var(--sp-12)">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">Challenge 1</div>
+        <div class="timeline-title">LWE Parameter Selection</div>
+        <div class="timeline-body">
+          Finding parameters (n, q, η) small enough to display in a demo but large enough to show that decryption actually works — and fails instructively when noise is too high. The n=4, q=97 choice required careful analysis of the correctness bound $|\delta| < q/4$.
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">Challenge 2</div>
+        <div class="timeline-title">Error Distribution Sampling</div>
+        <div class="timeline-body">
+          JavaScript's <code>Math.random()</code> is not cryptographically secure. All sampling uses <code>crypto.getRandomValues()</code> for uniform bits, then constructs the centered binomial distribution from uniform bits. This mirrors how real Kyber samples its error distribution.
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">Challenge 3</div>
+        <div class="timeline-title">Key Non-Extractability in Web Crypto</div>
+        <div class="timeline-body">
+          AES-GCM keys imported via <code>crypto.subtle.importKey(..., false, ...)</code> are non-extractable by design — you can't read the raw bytes back. This required careful design: derive the key bytes first (for display), then import separately for encryption operations.
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">Challenge 4</div>
+        <div class="timeline-title">LWE vs Kyber Simplification</div>
+        <div class="timeline-body">
+          Real Kyber uses polynomial arithmetic in $\mathbb{Z}_q[x]/(x^n + 1)$ with NTT (Number Theoretic Transform) for efficiency. Representing this accurately in a demo without becoming incomprehensible required careful scoping: plain LWE captures all the key ideas without polynomial rings.
+        </div>
+      </div>
+    </div>
+
+    <!-- Future Work -->
+    <div class="section-header reveal">
+      <div class="section-label">🚀 What's Next</div>
+      <h2>Future <span class="gradient-text">Work</span></h2>
+    </div>
+
+    <div class="grid-3 reveal-group" style="margin-bottom:var(--sp-12)">
+      <div class="card reveal">
+        <div style="font-size:2rem;margin-bottom:var(--sp-3)">🔮</div>
+        <h4>Real Kyber via liboqs-WASM</h4>
+        <p>Compile the Open Quantum Safe's <code>liboqs</code> library to WebAssembly. This would give a production-grade Kyber-768 implementation running in the browser, with n=256, q=3329 — real security parameters.</p>
+        <div class="badge badge-purple mt-4">Medium difficulty</div>
+      </div>
+      <div class="card reveal reveal-delay-1">
+        <div style="font-size:2rem;margin-bottom:var(--sp-3)">🌐</div>
+        <h4>Real Network Transfer</h4>
+        <p>Add a WebSocket server (Node.js + ws) so Alice and Bob can actually transfer files over a network. The key exchange would run over the WebSocket, demonstrating a real-world use case.</p>
+        <div class="badge badge-cyan mt-4">Medium difficulty</div>
+      </div>
+      <div class="card reveal reveal-delay-2">
+        <div style="font-size:2rem;margin-bottom:var(--sp-3)">📜</div>
+        <h4>PQ-TLS Integration</h4>
+        <p>Integrate into TLS via HKDF and proper KEM transport. Real hybrid PQC in TLS 1.3 uses X25519Kyber768 — the ECDH + Kyber combination as a single KEM. This is already deployed by Cloudflare and Google.</p>
+        <div class="badge badge-amber mt-4">High difficulty</div>
+      </div>
+    </div>
+
+    <!-- References -->
+    <div class="section-header reveal" id="references">
+      <div class="section-label">📚 References</div>
+      <h2>Academic <span class="gradient-text">References</span></h2>
+    </div>
+
+    <div class="accordion reveal" style="margin-bottom:var(--sp-8)">
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <span class="accordion-title">[1] Regev, O. (2005) — LWE Original Paper</span>
+          <span class="accordion-icon">▾</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-body-inner">
+            <p><strong>On Lattices, Learning with Errors, Random Linear Codes, and Cryptography.</strong></p>
+            <p style="color:var(--text-muted)">Oded Regev. STOC 2005, J. ACM 56(6), 2009.</p>
+            <p>The foundational paper introducing LWE and proving it is as hard as worst-case lattice problems (SIVP, GapSVP). Essential reading for understanding the security foundation.</p>
+            <a href="https://dl.acm.org/doi/10.1145/1374376.1374407" target="_blank" rel="noopener" class="btn btn-cyan btn-sm mt-4">View Paper →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <span class="accordion-title">[2] Bos et al. (2018) — CRYSTALS-Kyber</span>
+          <span class="accordion-icon">▾</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-body-inner">
+            <p><strong>CRYSTALS-Kyber: A CCA-Secure Module-Lattice-Based KEM.</strong></p>
+            <p style="color:var(--text-muted)">J. Bos, L. Ducas, E. Kiltz, T. Lepoint, V. Lyubashevsky, J.M. Schanck, P. Schwabe, G. Seiler, D. Stehlé. EuroS&P 2018.</p>
+            <p>The Kyber paper. Introduces the module-LWE approach for efficient KEM construction and provides the security proof for Kyber.CPA and Kyber.CCA2 security.</p>
+            <a href="https://eprint.iacr.org/2017/634" target="_blank" rel="noopener" class="btn btn-cyan btn-sm mt-4">IACR ePrint →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <span class="accordion-title">[3] NIST FIPS 203 (2024) — ML-KEM Standard</span>
+          <span class="accordion-icon">▾</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-body-inner">
+            <p><strong>Module-Lattice-Based Key-Encapsulation Mechanism Standard (FIPS 203).</strong></p>
+            <p style="color:var(--text-muted)">NIST, August 2024.</p>
+            <p>The official NIST standard for ML-KEM (based on Kyber). Defines the exact parameter sets, algorithms, and security requirements. This is the algorithm that production systems should implement.</p>
+            <a href="https://csrc.nist.gov/pubs/fips/203/final" target="_blank" rel="noopener" class="btn btn-cyan btn-sm mt-4">NIST Standard →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <span class="accordion-title">[4] Bernstein & Lange (2017) — Post-Quantum Cryptography</span>
+          <span class="accordion-icon">▾</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-body-inner">
+            <p><strong>Post-Quantum Cryptography.</strong></p>
+            <p style="color:var(--text-muted)">Daniel J. Bernstein, Tanja Lange. Nature 549, 188–194 (2017).</p>
+            <p>An accessible survey of the post-quantum landscape, covering lattice, code-based, hash-based, and multivariate approaches. Excellent starting point for understanding the field.</p>
+            <a href="https://www.nature.com/articles/nature23461" target="_blank" rel="noopener" class="btn btn-cyan btn-sm mt-4">View Article →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <span class="accordion-title">[5] Open Quantum Safe (liboqs)</span>
+          <span class="accordion-icon">▾</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-body-inner">
+            <p><strong>Open Quantum Safe (OQS) Project.</strong></p>
+            <p style="color:var(--text-muted)">University of Waterloo, 2016–present.</p>
+            <p>The liboqs library implements production-grade post-quantum algorithms including Kyber, Dilithium, and others. Used by OpenSSL, OpenSSH, and other major projects for hybrid PQC integration.</p>
+            <a href="https://openquantumsafe.org/" target="_blank" rel="noopener" class="btn btn-cyan btn-sm mt-4">OQS Project →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header">
+          <span class="accordion-title">[6] Web Crypto API — MDN + W3C Specification</span>
+          <span class="accordion-icon">▾</span>
+        </button>
+        <div class="accordion-body">
+          <div class="accordion-body-inner">
+            <p><strong>Web Cryptography API (W3C Recommendation).</strong></p>
+            <p style="color:var(--text-muted)">W3C, 2017. MDN Documentation — continuously updated.</p>
+            <p>The cryptographic API used in this demo for ECDH, AES-256-GCM, and SHA-256. Provides native, hardware-accelerated cryptography in all modern browsers without any dependencies.</p>
+            <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API" target="_blank" rel="noopener" class="btn btn-cyan btn-sm mt-4">MDN Reference →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- How to Run
+    <div class="section-header reveal">
+      <div class="section-label">💻 Developer Notes</div>
+      <h2>How to <span class="gradient-text">Run Locally</span></h2>
+    </div>
+
+    <div class="card reveal" style="margin-bottom:var(--sp-8)">
+      <h4 style="margin-bottom:var(--sp-4)">Option 1: Direct Browser (Simplest)</h4>
+      <p style="margin-bottom:var(--sp-3)">Just open <code>index.html</code> in any modern browser (Chrome, Firefox, Edge). All crypto runs natively via the Web Crypto API.</p>
+      <div class="info-box info-box-amber" style="margin-bottom:0">
+        <div class="info-box-icon">⚠️</div>
+        <div class="info-box-content">
+          <p>Some browsers require a web server for Web Crypto to work (due to the secure context requirement). If opening directly doesn't work, use Option 2.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h4 style="margin-bottom:var(--sp-4)">Option 2: Local HTTP Server</h4>
+      <p style="margin-bottom:var(--sp-4)">Any simple HTTP server works. Examples:</p>
+      <div class="code-block-header">
+        <span class="code-lang">Shell</span>
+        <button class="btn-copy">Copy</button>
+      </div>
+      <pre><code># Python 3 (recommended)
+cd Crypto_Proj_AntiG
+python -m http.server 8000
+# Then open: http://localhost:8000
+
+# Node.js (if installed)
+npx serve .
+# Then open the URL shown
+
+# VS Code: Install "Live Server" extension
+# Right-click index.html → Open with Live Server</code></pre>
+
+      <div class="info-box info-box-green" style="margin-top:var(--sp-4);margin-bottom:0">
+        <div class="info-box-icon">✓</div>
+        <div class="info-box-content">
+          <p><strong>No npm install, no build step, no backend.</strong> The entire project is static HTML/CSS/JS that runs in any modern browser.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:var(--sp-10)" class="reveal">
+      <a href="demo.html" class="btn btn-primary btn-lg btn-glow">⚡ Try the Demo Now</a>
+    </div>
+
+  </div>
+</div> -->
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo" style="margin-bottom:var(--sp-3);display:inline-flex;">
+          <div class="nav-logo-icon">🔐</div>
+          <span class="nav-logo-text">HybridPQC</span>
+        </a>
+        <p>A hybrid ECDH + LWE/Kyber post-quantum encrypted file transfer demonstration. Built for educational purposes. All crypto runs in your browser.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Pages</h5>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="how-it-works.html">How It Works</a></li>
+          <li><a href="math-details.html">Math Details</a></li>
+          <li><a href="demo.html">Demo</a></li>
+          <li><a href="security.html">Security</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Standards</h5>
+        <ul>
+          <li><a href="https://csrc.nist.gov/pubs/fips/203/final" target="_blank">FIPS 203 (ML-KEM)</a></li>
+          <li><a href="https://openquantumsafe.org/" target="_blank">Open Quantum Safe</a></li>
+          <li><a href="https://eprint.iacr.org/2017/634" target="_blank">Kyber Paper</a></li>
+          <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API" target="_blank">Web Crypto API</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Tech Used</h5>
+        <ul>
+          <li><a href="#">HTML5 + CSS3</a></li>
+          <li><a href="#">Vanilla JavaScript</a></li>
+          <li><a href="https://katex.org" target="_blank">KaTeX (math)</a></li>
+          <li><a href="#">Web Crypto API</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 HybridPQC – Educational Demo | Ansh Badreisya</span>
+      <span style="color:var(--text-muted)">🔒 Zero data leaves your browser</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/animations.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>

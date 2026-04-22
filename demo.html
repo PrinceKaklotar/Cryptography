@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Demo – Hybrid PQC File Transfer | HybridPQC</title>
+  <meta name="description" content="Interactively demonstrate hybrid ECDH+LWE encryption. Encrypt a file or message with post-quantum security, download it, and decrypt it in your browser." />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/demo.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><div class="nav-logo-icon">🔐</div><span class="nav-logo-text">HybridPQC</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="how-it-works.html">How It Works</a></li>
+      <li><a href="math-details.html">Math Details</a></li>
+      <li><a href="security.html">Security</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="demo.html" class="nav-cta active">Try Demo →</a></li>
+    </ul>
+    <button class="nav-hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-mobile">
+  <a href="index.html">Home</a><a href="how-it-works.html">How It Works</a>
+  <a href="math-details.html">Math Details</a><a href="security.html">Security</a>
+  <a href="about.html">About</a><a href="demo.html">Try Demo</a>
+</div>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="section-label">⚡ Interactive Demo</div>
+    <h1>Hybrid PQC <span class="gradient-text">File Transfer Demo</span></h1>
+    <p>Encrypt a real message or file using hybrid ECDH + LWE/Kyber cryptography — all in your browser. No data ever leaves your device.</p>
+  </div>
+</div>
+
+<div class="section-sm">
+  <div class="container">
+
+    <!-- One-click quick demo -->
+    <div class="demo-quick-run reveal">
+      <div>
+        <h4>⚡ One-Click Demo</h4>
+        <p>Skips to the end — runs the full hybrid key exchange + encryption automatically with a demo message.</p>
+      </div>
+      <button class="btn btn-primary btn-glow" id="btn-quick-demo">⚡ Run Full Demo</button>
+    </div>
+
+    <!-- Demo layout -->
+    <div class="demo-layout">
+
+      <!-- Sidebar Steps -->
+      <div class="demo-steps-sidebar">
+        <div class="demo-steps-title">Progress</div>
+
+        <div class="demo-step-item active" data-step="1" id="sidebar-step-1">
+          <div class="demo-step-num">1</div>
+          <div class="demo-step-label">Choose Input</div>
+        </div>
+        <div class="demo-connector" data-after="1"></div>
+
+        <div class="demo-step-item" data-step="2" id="sidebar-step-2">
+          <div class="demo-step-num">2</div>
+          <div class="demo-step-label">Key Exchange</div>
+        </div>
+        <div class="demo-connector" data-after="2"></div>
+
+        <div class="demo-step-item" data-step="3" id="sidebar-step-3">
+          <div class="demo-step-num">3</div>
+          <div class="demo-step-label">Encrypt</div>
+        </div>
+        <div class="demo-connector" data-after="3"></div>
+
+        <div class="demo-step-item" data-step="4" id="sidebar-step-4">
+          <div class="demo-step-num">4</div>
+          <div class="demo-step-label">Download</div>
+        </div>
+        <div class="demo-connector" data-after="4"></div>
+
+        <div class="demo-step-item" data-step="5" id="sidebar-step-5">
+          <div class="demo-step-num">5</div>
+          <div class="demo-step-label">Decrypt</div>
+        </div>
+
+        <div style="margin-top:var(--sp-5);padding-top:var(--sp-4);border-top:1px solid var(--border)">
+          <div class="demo-steps-title">Security Info</div>
+          <div style="font-size:0.78rem;color:var(--text-muted);line-height:1.8">
+            <div>🔐 ECDH: P-256</div>
+            <div>🔮 LWE: n=4, q=97</div>
+            <div>🔀 KDF: SHA-256</div>
+            <div>🔒 AES-256-GCM</div>
+            <div style="margin-top:var(--sp-2);color:rgba(16,185,129,0.8)">✓ All crypto runs locally</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Panel -->
+      <div class="demo-panel">
+        <div class="demo-panel-header">
+          <div class="demo-panel-title">
+            <span style="font-size:1.3rem">🔐</span>
+            <h3 id="panel-title">Step 1: Choose Your Input</h3>
+          </div>
+          <span class="badge badge-cyan" id="step-badge">Step 1 of 5</span>
+        </div>
+
+        <div class="demo-panel-body">
+
+          <!-- ─── Step 1: Input ─── -->
+          <div class="step-view active" id="step-1">
+            <p style="margin-bottom:var(--sp-5)">Choose what you'd like to encrypt — type a message or upload a file (max 5 MB).</p>
+
+            <div class="input-options">
+              <div class="input-option selected" data-mode="text" id="opt-text">
+                <div class="input-option-icon">✏️</div>
+                <div class="input-option-label">Type a Message</div>
+              </div>
+              <div class="input-option" data-mode="file" id="opt-file">
+                <div class="input-option-icon">📁</div>
+                <div class="input-option-label">Upload a File</div>
+              </div>
+            </div>
+
+            <!-- Text input -->
+            <div id="text-input-area">
+              <textarea class="demo-textarea" id="demo-text-input"
+                placeholder="Type your secret message here… e.g. 'Hello, Post-Quantum World! 🌍'"
+              >Hello, Post-Quantum World! This message is protected by hybrid ECDH + LWE encryption. Even if a quantum computer breaks one of the algorithms, your data is safe.</textarea>
+            </div>
+
+            <!-- File input -->
+            <div id="file-input-area" style="display:none">
+              <div class="file-drop-zone" id="file-drop-zone">
+                <div class="file-drop-icon">📂</div>
+                <p>Drag & drop a file here, or click to browse</p>
+                <span class="btn btn-secondary btn-sm">Choose File</span>
+                <input type="file" id="file-input" accept="*/*" />
+              </div>
+              <div class="file-selected" id="file-info" style="display:none">
+                <span class="file-selected-icon">📄</span>
+                <div>
+                  <div class="file-name" id="file-name-display">—</div>
+                  <div class="file-size" id="file-size-display">—</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="input-size-info" style="font-size:0.8rem;color:var(--text-muted);margin-top:var(--sp-3)"></div>
+
+            <div class="demo-nav">
+              <div></div>
+              <button class="btn btn-primary" id="btn-next-step1">Continue →</button>
+            </div>
+          </div>
+
+          <!-- ─── Step 2: Key Exchange ─── -->
+          <div class="step-view" id="step-2">
+            <p style="margin-bottom:var(--sp-5)">
+              Watch as Alice (Sender) and Bob (Receiver) perform <strong>two parallel</strong> key exchanges —
+              ECDH (classical) and LWE (post-quantum) — to arrive at the same hybrid key.
+            </p>
+
+            <!-- Parties -->
+            <div class="key-exchange-cols">
+
+              <!-- Alice (Sender) -->
+              <div class="party-col">
+                <div class="party-col-header">
+                  <div class="party-avatar avatar-sender">A</div>
+                  <div>
+                    <div class="party-name">Alice</div>
+                    <div class="party-role">Sender</div>
+                  </div>
+                </div>
+                <div class="party-col-body">
+                  <div class="key-field">
+                    <div class="key-field-label">ECDH Public Key</div>
+                    <div class="key-field-value empty" id="alice-pub-key">Waiting…</div>
+                  </div>
+                  <div class="key-field">
+                    <div class="key-field-label">LWE Ciphertext u = Aᵀr + e₁</div>
+                    <div class="key-field-value empty" id="alice-ciphertext">Waiting…</div>
+                  </div>
+                  <div class="key-field">
+                    <div class="key-field-label">Alice's ECDH Shared Secret</div>
+                    <div class="key-field-value empty" id="ecdh-shared">Waiting…</div>
+                  </div>
+                  <div class="key-field">
+                    <div class="key-field-label">Alice's LWE Key = b·r mod q</div>
+                    <div class="key-field-value empty" id="lwe-shared">Waiting…</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Middle -->
+              <div class="exchange-mid">
+                <div class="exchange-icon">⟷</div>
+                <div style="font-size:0.7rem;color:var(--text-muted);text-align:center;writing-mode:vertical-rl;transform:none">
+                  Public channel
+                </div>
+                <div class="exchange-icon">⟷</div>
+              </div>
+
+              <!-- Bob (Receiver) -->
+              <div class="party-col">
+                <div class="party-col-header">
+                  <div class="party-avatar avatar-receiver">B</div>
+                  <div>
+                    <div class="party-name">Bob</div>
+                    <div class="party-role">Receiver</div>
+                  </div>
+                </div>
+                <div class="party-col-body">
+                  <div class="key-field">
+                    <div class="key-field-label">ECDH Public Key</div>
+                    <div class="key-field-value empty purple-val" id="bob-pub-key">Waiting…</div>
+                  </div>
+                  <div class="key-field">
+                    <div class="key-field-label">LWE Public Key (A, b)</div>
+                    <div class="key-field-value empty purple-val" id="bob-lwe-decap">Waiting…</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LWE Matrix Display -->
+            <div class="lwe-section">
+              <div class="lwe-section-title">🔮 LWE Matrix Operations (n=4, q=97)</div>
+
+              <div class="matrix-wrap" style="flex-wrap:wrap;gap:var(--sp-4)">
+                <div>
+                  <div class="key-field-label" style="margin-bottom:var(--sp-2)">Matrix A (public)</div>
+                  <div id="lwe-matrix-A" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--text-muted);padding:var(--sp-2);">
+                    Awaiting key generation…
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:var(--sp-3)">
+                  <div>
+                    <div class="key-field-label" style="margin-bottom:var(--sp-2)">× secret s</div>
+                    <div id="lwe-vec-s" style="font-size:0.75rem;color:var(--text-muted)">—</div>
+                  </div>
+                  <span style="font-size:1.2rem;color:var(--text-muted)">+</span>
+                  <div>
+                    <div class="key-field-label" style="margin-bottom:var(--sp-2)">error e</div>
+                    <div id="lwe-vec-e" style="font-size:0.75rem;color:var(--text-muted)">—</div>
+                  </div>
+                  <span style="font-size:1.2rem;color:var(--text-muted)">=</span>
+                  <div>
+                    <div class="key-field-label" style="margin-bottom:var(--sp-2)">b (public)</div>
+                    <div id="lwe-vec-b" style="font-size:0.75rem;color:var(--text-muted)">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top:var(--sp-3);font-family:var(--font-mono);font-size:0.75rem;display:none" id="lwe-vals">
+                <div style="color:var(--purple-light)">s = <span id="lwe-secret-display">—</span></div>
+                <div style="color:var(--red)">e = <span id="lwe-error-display">—</span></div>
+                <div style="color:var(--green)">b = <span id="lwe-b-display">—</span></div>
+              </div>
+            </div>
+
+            <!-- Failure message -->
+            <div class="noise-warning" id="lwe-failure-msg">
+              ⚠ LWE decryption failure! Noise bound exceeded. This is expected when η is too large — it shows why parameter selection matters in real Kyber.
+            </div>
+
+            <!-- Hybrid key result -->
+            <div class="hybrid-key-display" id="hybrid-key-section" style="margin-top:var(--sp-4)">
+              <div class="hybrid-key-label">🔀 Hybrid Key = SHA-256(ECDH_secret ‖ LWE_secret ‖ "HybridPQC-v1")</div>
+              <div class="hybrid-key-value" id="hybrid-key-display">
+                Run the key exchange to see the derived hybrid key…
+              </div>
+            </div>
+
+            <!-- Noise control -->
+            <div class="noise-control">
+              <div class="noise-control-header">
+                <span class="noise-label">🎛 LWE Noise Bound (η)</span>
+                <span class="noise-value" id="noise-value-display">1</span>
+              </div>
+              <input type="range" id="noise-slider" min="1" max="10" value="1"
+                     aria-label="LWE noise bound" style="width:100%" />
+              <p style="font-size:0.78rem;color:var(--text-muted);margin-top:var(--sp-2)">
+                η = 1 (safe). Increase beyond 3 to trigger correcntess failure. Real Kyber: η = 2–3 with much larger q.
+              </p>
+              <div class="noise-warning" id="noise-warning">
+                ⚠ Noise η > 3 — correctness bound may be exceeded. Decryption will likely fail!
+              </div>
+            </div>
+
+            <div class="demo-nav">
+              <button class="btn btn-secondary btn-sm" id="btn-back-step2">← Back</button>
+              <div class="flex gap-3">
+                <button class="btn btn-cyan" id="btn-run-exchange">⚡ Run Key Exchange</button>
+                <button class="btn btn-primary" id="btn-next-step2" disabled>Continue →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── Step 3: Encrypt ─── -->
+          <div class="step-view" id="step-3">
+            <p style="margin-bottom:var(--sp-5)">
+              Using the <strong>hybrid key</strong>, encrypt your file with AES-256-GCM.
+              This is real, production-grade symmetric encryption.
+            </p>
+
+            <div class="encrypt-flow">
+              <div class="encrypt-step">
+                <div class="encrypt-step-dot encrypt-step-dot-cyan"></div>
+                <div class="encrypt-step-content">
+                  <h5>Hybrid Key Ready</h5>
+                  <p>256-bit key derived from ECDH + LWE:</p>
+                  <div class="hex-display" id="enc-hybrid-key-display" style="max-width:400px">
+                    <div class="hybrid-key-value" id="enc-hybrid-key-val" style="font-size:0.78rem;padding:0">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="encrypt-step">
+                <div class="encrypt-step-dot encrypt-step-dot-purple"></div>
+                <div class="encrypt-step-content">
+                  <h5>Random IV Generated</h5>
+                  <p>A fresh 96-bit random nonce (IV) is generated for each encryption. Never reused.</p>
+                  <div class="hex-display" id="enc-iv-display">Awaiting encryption…</div>
+                </div>
+              </div>
+
+              <div class="encrypt-step">
+                <div class="encrypt-step-dot encrypt-step-dot-green"></div>
+                <div class="encrypt-step-content">
+                  <h5>AES-256-GCM Ciphertext</h5>
+                  <p>Your file encrypted + 128-bit authentication tag:</p>
+                  <div class="cipher-preview">
+                    <div id="cipher-preview-text">— Encrypt to see ciphertext —</div>
+                  </div>
+                  <p style="font-size:0.78rem;margin-top:var(--sp-2)">
+                    Size: <span id="enc-size-display">—</span>
+                    &nbsp;|&nbsp; Format: HPQC magic (4B) + IV (12B) + Ciphertext + Tag (16B)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-nav" style="margin-top:var(--sp-5)">
+              <button class="btn btn-secondary btn-sm" id="btn-back-step3">← Back</button>
+              <div class="flex gap-3">
+                <button class="btn btn-purple" id="btn-encrypt">🔒 Encrypt File</button>
+                <button class="btn btn-primary" id="btn-next-step3" disabled>Continue →</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── Step 4: Download ─── -->
+          <div class="step-view" id="step-4">
+            <div class="download-card">
+              <span class="download-icon">📦</span>
+              <h4>Encrypted File Ready!</h4>
+              <p>Your file has been encrypted with hybrid post-quantum cryptography. Download the <code>.hpqc</code> file — only someone with the hybrid key can decrypt it.</p>
+              <div style="margin-bottom:var(--sp-4)">
+                <div class="badge badge-green" style="margin-right:var(--sp-2)">✓ ECDH Protected</div>
+                <div class="badge badge-purple" style="margin-right:var(--sp-2)">✓ LWE Protected</div>
+                <div class="badge badge-cyan">✓ AES-256-GCM Authenticated</div>
+              </div>
+              <button class="btn btn-primary btn-lg btn-glow" id="btn-download">⬇ Download .hpqc File</button>
+            </div>
+
+            <div class="info-box info-box-cyan" style="margin-top:var(--sp-5)">
+              <div class="info-box-icon">💡</div>
+              <div class="info-box-content">
+                <h5>What's in the .hpqc file?</h5>
+                <p>The <code>.hpqc</code> file is a <strong>JSON file</strong> containing your Base64-encoded ciphertext — this means it opens cleanly in any text editor and uploads reliably across all browsers. Structure:</p>
+                <pre style="font-size:0.76rem;margin-top:var(--sp-2);background:rgba(0,0,0,0.3);padding:var(--sp-2);border-radius:4px;overflow-x:auto">{&#10;  "format": "HybridPQC-v1",&#10;  "algorithm": "AES-256-GCM",&#10;  "iv": "&lt;base64 nonce&gt;",&#10;  "ciphertext": "&lt;base64 encrypted data + GCM tag&gt;",&#10;  "originalSize": &lt;bytes&gt;&#10;}</pre>
+                <p style="margin-top:var(--sp-2)">The key is <strong>NOT stored</strong> in the file — it lives only in the key exchange session.</p>
+              </div>
+            </div>
+
+            <div class="demo-nav">
+              <button class="btn btn-secondary btn-sm" id="btn-back-step4">← Back</button>
+              <button class="btn btn-primary" id="btn-next-step4" disabled>Go to Decrypt →</button>
+            </div>
+          </div>
+
+          <!-- ─── Step 5: Decrypt ─── -->
+          <div class="step-view" id="step-5">
+            <p style="margin-bottom:var(--sp-5)">
+              Upload an encrypted <code>.hpqc</code> file to decrypt it. The hybrid key from this session will be used automatically.
+            </p>
+
+            <div class="decrypt-panel">
+              <!-- Upload zone -->
+              <div>
+                <h5 style="margin-bottom:var(--sp-3)">Load Encrypted File</h5>
+                <div class="decrypt-upload-zone" id="decrypt-drop-zone">
+                  <div style="font-size:2rem;margin-bottom:var(--sp-3)">🔐</div>
+                  <p>Drop your <code>.hpqc</code> file here, or click to browse</p>
+                  <p style="font-size:0.78rem;color:var(--text-muted);margin-top:var(--sp-1)">(The .hpqc file is a JSON file — upload it exactly as downloaded)</p>
+                  <span class="btn btn-purple btn-sm" style="margin-top:var(--sp-3)">Choose File</span>
+                  <input type="file" id="decrypt-file-input" accept=".hpqc,.json,application/json,*/*" style="display:none" />
+                </div>
+
+                <div class="file-selected" id="decrypt-file-info" style="display:none;margin-top:var(--sp-3)">
+                  <span class="file-selected-icon">🔐</span>
+                  <div><div class="file-name" id="decrypt-file-name">—</div></div>
+                </div>
+
+                <button class="btn btn-cyan btn-sm w-full" style="margin-top:var(--sp-3)" id="btn-use-current">
+                  ↩ Use Current Session File
+                </button>
+
+                <div style="margin-top:var(--sp-5)">
+                  <div style="display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-2)">
+                    <div class="badge badge-green" id="decrypt-success-badge" style="display:none">✓ Decrypted OK</div>
+                    <div class="badge badge-red" id="decrypt-fail-badge" style="display:none">✗ Decryption Failed</div>
+                  </div>
+                  <button class="btn btn-primary w-full" id="btn-decrypt">🔓 Decrypt</button>
+                </div>
+              </div>
+
+              <!-- Result -->
+              <div class="decrypt-result">
+                <div class="decrypt-result-label">Decrypted Content</div>
+                <div class="decrypt-result-content" id="decrypt-result-content">
+                  Decrypted content will appear here…
+                </div>
+              </div>
+            </div>
+
+            <div class="demo-nav">
+              <button class="btn btn-secondary btn-sm" id="btn-back-step5">← Back</button>
+              <a href="security.html" class="btn btn-purple">View Security Analysis →</a>
+            </div>
+          </div>
+
+        </div><!-- /panel body -->
+      </div><!-- /demo-panel -->
+    </div><!-- /demo-layout -->
+
+    <!-- ─── Computation Log ─── -->
+    <div class="reveal" style="margin-top:var(--sp-6)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-3)">
+        <h4 style="font-size:0.9rem;color:var(--text-secondary)">🖥 Computation Log</h4>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('computation-log').innerHTML=''">Clear</button>
+      </div>
+      <div class="computation-log" id="computation-log">
+        <div class="log-entry">
+          <span class="log-ts">[init]</span>
+          <span class="log-msg info">HybridPQC Demo initialized. Web Crypto API: available ✓</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-ts">[info]</span>
+          <span class="log-msg info">LWE parameters: n=4, q=97, χ = centered binomial B(2,0.5)-1</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-ts">[info]</span>
+          <span class="log-msg info">ECDH: P-256 (secp256r1) via Web Crypto API — real cryptography!</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-ts">[info]</span>
+          <span class="log-msg info">AES-256-GCM: Web Crypto API — authenticated encryption.</span>
+        </div>
+        <div class="log-entry">
+          <span class="log-ts">[ready]</span>
+          <span class="log-msg success">Ready. Complete Step 1 to begin.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Info Cards ─── -->
+    <div class="grid-3 reveal-group" style="margin-top:var(--sp-8)">
+      <div class="card card-cyan reveal">
+        <div class="card-icon card-icon-cyan">🔑</div>
+        <h4>Real ECDH</h4>
+        <p>This demo uses the browser's Web Crypto API for actual ECDH key exchange. The shared secret is a real P-256 Diffie-Hellman output, not a simulation.</p>
+      </div>
+      <div class="card card-purple reveal reveal-delay-1">
+        <div class="card-icon card-icon-purple">🔮</div>
+        <h4>Simplified LWE</h4>
+        <p>LWE uses n=4, q=97 — tiny but mathematically correct. The actual matrix operations, error addition, and decapsulation all work exactly as in Kyber, just at tiny scale.</p>
+      </div>
+      <div class="card card-green reveal reveal-delay-2">
+        <div class="card-icon card-icon-green">🔒</div>
+        <h4>Real AES-256-GCM</h4>
+        <p>File encryption uses the real AES-256-GCM algorithm from Web Crypto API. Your file is genuinely encrypted and can only be decrypted with the correct hybrid key.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="justify-content:center;gap:var(--sp-6)">
+      <a href="index.html" style="color:var(--text-muted);text-decoration:none">Home</a>
+      <a href="how-it-works.html" style="color:var(--text-muted);text-decoration:none">How It Works</a>
+      <a href="security.html" style="color:var(--text-muted);text-decoration:none">Security</a>
+      <a href="about.html" style="color:var(--text-muted);text-decoration:none">About</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/lwe.js"></script>
+<script src="js/ecdh.js"></script>
+<script src="js/hybrid.js"></script>
+<script src="js/aes.js"></script>
+<script src="js/lattice-canvas.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/nav.js"></script>
+<script src="js/demo.js"></script>
+<script>
+// Sync hybrid key display to step 3
+window.addEventListener('DOMContentLoaded', () => {
+  const origRunExchange = window.runKeyExchange;
+
+  // Update step 3 hybrid key display after exchange
+  document.getElementById('btn-next-step2')?.addEventListener('click', () => {
+    const hkd = document.getElementById('hybrid-key-display');
+    const encHkv = document.getElementById('enc-hybrid-key-val');
+    if (hkd && encHkv) encHkv.innerHTML = hkd.innerHTML;
+  });
+
+  // Also show LWE vals
+  const lweVals = document.getElementById('lwe-vals');
+  if (lweVals) {
+    document.getElementById('btn-run-exchange')?.addEventListener('click', () => {
+      setTimeout(() => { lweVals.style.display = 'block'; }, 1500);
+    });
+  }
+});
+</script>
+</body>
+</html>
