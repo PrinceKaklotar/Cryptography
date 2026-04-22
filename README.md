@@ -51,10 +51,10 @@ CRYPTO/
 │── how-it-works.html
 │── security.html
 │── test.html
-│
+---
 ├── css/
 │ └── style.css
-│
+---
 ├── js/
 │ ├── aes.js # AES encryption logic
 │ ├── ecdh.js # ECDH key exchange
