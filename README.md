@@ -82,11 +82,7 @@ CRYPTO/
 - 🎨 Visualization-focused learning tool
 - 🔒 End-to-end secure file handling
 
----
 
-## 📸 Screenshots
-
-> (Add screenshots here for better impact)
 
 ---
 
