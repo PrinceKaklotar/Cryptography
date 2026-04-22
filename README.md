@@ -43,27 +43,27 @@ This project not only performs secure file transfer but also provides an **inter
    - Same derived key is used to decrypt securely
 
 ---
-
 ## 🏗️ Project Structure
+
+```
 CRYPTO/
-│── index.html
-│── demo.html
-│── how-it-works.html
-│── security.html
-│── test.html
----
+├── index.html
+├── demo.html
+├── how-it-works.html
+├── security.html
+├── test.html
+│
 ├── css/
-│ └── style.css
----
+│   └── style.css
+│
 ├── js/
-│ ├── aes.js # AES encryption logic
-│ ├── ecdh.js # ECDH key exchange
-│ ├── lwe.js # Kyber (lattice-based logic)
-│ ├── hybrid.js # Hybrid crypto integration
-│ └── demo.js # Visualization logic
+│   ├── aes.js        # AES encryption logic
+│   ├── ecdh.js       # ECDH key exchange
+│   ├── lwe.js        # Kyber (lattice-based logic)
+│   ├── hybrid.js     # Hybrid crypto integration
+│   └── demo.js       # Visualization logic
+```
 
-
----
 
 ## 🛠️ Tech Stack
 
