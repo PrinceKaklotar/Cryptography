@@ -108,14 +108,6 @@ CRYPTO/
 
 ---
 
-## 👨‍💻 Author
-
-**Prince Kaklotar**
-
-- GitHub: https://github.com/yourusername
-
----
-
 ## ⭐ If you like this project
 
 Give it a star ⭐ and share it!
